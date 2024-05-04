@@ -12,62 +12,7 @@ import sequelize from '../../config/db'
 import { QueryTypes } from 'sequelize'
 
 class PatientsController {
-  static async login (req: any, res: any): Promise<any> {
-    try {
-      let token
-      const { email, password } = req.body
 
-      console.log('req.body', req.body)
-
-      if (!email || !password) {
-        return res
-          .status(400)
-          .json({ message: 'Email and password is required' })
-      }
-
-      const account: any = await Auth.findOne({ where: { Email: email, UserType: 'Patient' } })
-      const user = await Patients.findOne({ where: { Email: email } })
-      if (!account) {
-        const result: any = {
-          message: 'Account  Not Found!',
-          code: 400
-        }
-        return res.status(result.code).json(result)
-      }
-      const validPass = await CheckPassword(password, account.PasswordHash)
-      if (!validPass) {
-        const result: any = {
-          message: 'Incorret Password!',
-          code: 400
-        }
-        return res.status(result.code).json(result)
-      }
-
-      // if (parseInt(account.dataValues.Verified) === 0) {
-      //   const result: any = {
-      //     message: 'Account Not Verified! Kindly check your email for verification link',
-      //     code: 400
-      //   }
-      //   return res.status(result.code).json(result)
-      // }
-
-      if (user !== null) {
-        token = GenerateToken(user)
-      }
-
-      const data: any = {}
-      data.user = user
-      data.System = await Systems.findOne({ where: { id: 1 } })
-
-      res.status(200).json({ success: true, data, token })
-    } catch (error: any) {
-      const result: any = {
-        message: 'Error login in: ' + error.message,
-        code: 400
-      }
-      res.status(result.code).json(result)
-    }
-  }
 
   static async createPatients (req: any, res: any): Promise<any> {
     try {
@@ -91,7 +36,7 @@ class PatientsController {
 
       const DID = getUIDfromDate('PAT')
       data.UserID = DID
-      data.UserType = 'Patient'
+      data.UserType = 'patient'
       const dpaswprd = data.Password ?? DID
 
       const account: any = {}
@@ -100,7 +45,7 @@ class PatientsController {
       account.LastName = data.LastName
       account.Email = data.Email
       account.Role = data.UserType
-      account.UserType = 'Patient'
+      account.UserType = 'patient'
       account.PasswordHash = await EncryptPassword(dpaswprd)
       account.RefreshToken = account.PasswordHash
       account.Token = DID
@@ -175,9 +120,9 @@ Chief Investment Officer<br>
         })
       }
 
-      const DID = getUIDfromDate('INV')
+      const DID = getUIDfromDate('PAT')
       data.UserID = DID
-      data.UserType = 'Patient'
+      data.UserType = 'patient'
       const dpaswprd = data.Password ?? DID
 
       const account: any = {}
@@ -185,7 +130,7 @@ Chief Investment Officer<br>
       account.FullName = data.FullName
       account.Email = data.Email
       account.Role = data.UserType
-      account.UserType = 'Patient'
+      account.UserType = 'patient'
       account.PasswordHash = await EncryptPassword(dpaswprd)
       account.RefreshToken = account.PasswordHash
       account.Token = DID
@@ -223,8 +168,7 @@ Thank you for choosing to invest with Cadence. <br>We look forward to a successf
 <br>
 Best regards,<br><br>
 
-Ola Daniels<br>
-Chief Investment Officer<br>
+DOCARE SUPPORT TEAM<br>
 `,
         to_email: data.Email
       }
@@ -323,30 +267,30 @@ Chief Investment Officer<br>
  */
   static async updatePatients (req: any, res: any): Promise<any> {
     try {
-      let agentId
-      if (req.user.data.UserType === 'Patient') {
+      let patientId
+      if (req.user.data.Account.UserType === 'patient') {
         if (parseInt(req.params.id) === req.user.data.id) {
-          agentId = parseInt(req.params.id)
+          patientId = parseInt(req.params.id)
         } else {
           return res.status(401).json({ success: true, message: 'You are not allowed to perform this action!' })
         }
-      } else if (req.user.data.UserType === 'Admin') {
-        agentId = parseInt(req.params.id)
+      } else if (req.user.data.Account.UserType === 'Admin') {
+        patientId = parseInt(req.params.id)
       } else {
         return res.status(401).json({ success: true, message: 'You are not authorized for this action!' })
       }
 
       const updatedInfo = req.body
 
-      const agent = await Patients.findByPk(agentId)
+      const patient = await Patients.findByPk(patientId)
 
-      if (!agent) {
+      if (!patient) {
         return res.status(404).json({ success: false, message: 'Patient not found' })
       }
 
-      await agent.update(updatedInfo)
+      const updatedPatient = await patient.update(updatedInfo)
 
-      return res.status(200).json({ success: true, data: agent, message: 'Patient information updated' })
+      return res.status(200).json({ success: true, data: updatedPatient, message: 'Patient information updated' })
     } catch (error: any) {
       const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` }
       console.error(error)

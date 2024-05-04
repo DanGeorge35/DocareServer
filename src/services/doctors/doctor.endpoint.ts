@@ -14,11 +14,6 @@ const DoctorsEndpoint = [
     handler: [DoctorsController.createDoctors2]
   },
   {
-    path: `${ENDPOINT_URL}/login`,
-    method: 'post',
-    handler: [DoctorsController.login]
-  },
-  {
     path: `${ENDPOINT_URL}/:id`,
     method: 'patch',
     handler: [Authorization, DoctorsController.updateDoctors]
@@ -31,7 +26,7 @@ const DoctorsEndpoint = [
   {
     path: `${ENDPOINT_URL}/`,
     method: 'get',
-    handler: [Authorization, DoctorsController.getallDoctors]
+    handler: [ DoctorsController.getallDoctors]
   },
   {
     path: `${ENDPOINT_URL}/:id`,

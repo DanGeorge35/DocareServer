@@ -14,11 +14,6 @@ const PatientsEndpoint = [
     handler: [PatientsController.createPatients2]
   },
   {
-    path: `${ENDPOINT_URL}/login`,
-    method: 'post',
-    handler: [PatientsController.login]
-  },
-  {
     path: `${ENDPOINT_URL}/:id`,
     method: 'patch',
     handler: [Authorization, PatientsController.updatePatients]

@@ -4,6 +4,9 @@ import bcrypt from 'bcryptjs'
 import fs from 'fs'
 import axios from 'axios'
 import { type Fields } from 'formidable'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 function Authorization (req: any, res: any, next: any): any {
   // eslint-disable-next-line no-unused-vars
@@ -41,9 +44,9 @@ async function EncryptPassword (password: string): Promise<string> {
 
 async function SendMailJS (templateID: string, templateParams: any): Promise<void> {
   const options = {
-    service_id: 'service_vdnsdbq',
+    service_id:  process.env.EmailJS_service_id,
     template_id: templateID,
-    user_id: 'RCVp1J62LBFzk1i31',
+    user_id:  process.env.EmailJS_user_id,
     template_params: templateParams
   }
 
@@ -69,12 +72,12 @@ async function SendMailJS (templateID: string, templateParams: any): Promise<voi
 
 async function SendMail (mail: any): Promise<void> {
   const transporter = nodemailer.createTransport({
-    host: 'mail.cadencepub.com',
+    host:  process.env.EmailHost,
     port: 465,
     secure: true, // Use secure connection (TLS/SSL)
     auth: {
-      user: 'contact@cadencepub.com',
-      pass: 'contact001'
+      user: process.env.EmailUser,
+      pass: process.env.EmailPassword,
     }
   })
 

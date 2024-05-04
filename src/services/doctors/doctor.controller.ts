@@ -70,7 +70,7 @@ class DoctorsController {
   }
 
   static async createDoctors (req: any, res: any): Promise<any> {
-    try {
+  try {
       const data = req.body
       const validate = await DoctorsValidation.validateCreateDoctors(data)
       if (validate.result === 'error') {
@@ -84,37 +84,39 @@ class DoctorsController {
       const checkExist = await Doctors.findOne({ where: { Email: data.Email } })
       if (checkExist !== null) {
         return res.status(400).send({
-          message: 'This Doctor  Already Exist',
+          message: 'Account Already Exist',
           code: 400
         })
       }
 
-      const DID = getUIDfromDate('INV')
+      const DID = getUIDfromDate('DOC')
       data.UserID = DID
-      data.UserType = 'Doctor'
+      data.UserType = 'doctor'
       const dpaswprd = data.Password ?? DID
 
       const account: any = {}
       account.UserID = data.UserID
-      account.FullName = data.FullName
+      account.FirstName = data.FirstName
+      account.LastName = data.LastName
       account.Email = data.Email
       account.Role = data.UserType
-      account.UserType = 'Doctor'
+      account.UserType = 'doctor'
       account.PasswordHash = await EncryptPassword(dpaswprd)
       account.RefreshToken = account.PasswordHash
       account.Token = DID
       account.Verified = '0'
+      account.Status = 'Pending'
 
       const daccount = await Auth.create({ ...account })
 
       const dDoctors = await Doctors.create({ ...data })
 
-      data.doctorId = data.UserID
+
 
       dDoctors.dataValues.account = daccount
       // send mail
       const templateParams = {
-        to_name: data.FullName,
+        to_name: data.FirstName,
         reply_to: 'contact@cadencepub.com',
         subject: 'Welcome to Cadence Investment Platform!',
         message: `
@@ -138,13 +140,12 @@ Thank you for choosing to invest with Cadence. <br>We look forward to a successf
 <br>
 Best regards,<br><br>
 
-Ola Daniels<br>
-Chief Investment Officer<br>
+<br>
 `,
         to_email: data.Email
       }
       res.status(201).json({ success: true, data: dDoctors })
-      await SendMail(templateParams)
+    //  await SendMail(templateParams)
     } catch (error: any) {
       return res.status(400).send({
         message: error.message,

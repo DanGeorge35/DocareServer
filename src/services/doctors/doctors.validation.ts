@@ -2,28 +2,27 @@
 import Joi from 'joi'
 
 const schema = Joi.object({
-  FullName: Joi.string().required().min(1),
-  Phone: Joi.string().required().min(1),
+  FirstName: Joi.string().required().min(1),
+  LastName: Joi.string().required().min(1),
   Email: Joi.string().required().min(1),
   Password: Joi.string().required().min(1)
 })
 
+
 const schema2 = Joi.object({
-  FullName: Joi.string().required().min(1),
-  Phone: Joi.string().required().min(1),
-  Email: Joi.string().required().min(1),
-  Gender: Joi.string().required().min(1),
-  Nationality: Joi.string().required().min(1),
-  State: Joi.string().required().min(1),
-  City: Joi.string().required().min(1),
-  Address: Joi.string().required().min(1),
-  Amount: Joi.string().required().min(1),
-  Duration: Joi.string().required().min(1),
-  NOKFullName: Joi.string().required().min(1),
-  NOKRelationship: Joi.string().required().min(1),
-  NOKPhone: Joi.string().required().min(1),
-  NOKEmail: Joi.string().required().min(1),
-  NOKAddress: Joi.string().required().min(1)
+  FirstName: Joi.any().optional(),
+  LastName: Joi.any().optional(),
+  Phone: Joi.string().optional().min(1),
+  Email: Joi.any().optional(),
+  Gender: Joi.any().optional(),
+  Nationality: Joi.any().optional(),
+  State: Joi.any().optional(),
+  City: Joi.any().optional(),
+  Coordinate: Joi.any().optional(),
+  ratings: Joi.any().optional(),
+  BankName: Joi.any().optional(),
+  AccountNumber: Joi.any().optional(),
+  AccountName: Joi.any().optional(),
 })
 
 // name : Joi.any().optional(); // for optional entry
@@ -50,22 +49,18 @@ class doctorsValidation {
 
 export default doctorsValidation
 
-/* --------------------------------------------------------- POSTMAN TEST DATA STRUCTURE
+/*
+--------------------------------------------------------- POSTMAN TEST DATA STRUCTURE
  {
-    "FullName" : "",
+    "FirstName" : "",
+    "LastName" : "",
     "Phone" : "",
     "Email" : "",
     "Gender" : "",
     "Nationality" : "",
     "State" : "",
     "City" : "",
-    "Address" : "",
-    "Amount" : "",
-    "Duration" : "",
-    "NOKFullName" : "",
-    "NOKRelationship" : "",
-    "NOKPhone" : "",
-    "NOKEmail" : "",
-    "NOKAddress" : "",
+    "Address" : ""
   }
---------------------------------------------------------- POSTMAN TEST DATA STRUCTURE */
+--------------------------------------------------------- POSTMAN TEST DATA STRUCTURE
+*/
