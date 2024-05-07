@@ -12,62 +12,7 @@ import sequelize from '../../config/db'
 import { QueryTypes } from 'sequelize'
 
 class DoctorsController {
-  static async login (req: any, res: any): Promise<any> {
-    try {
-      let token
-      const { email, password } = req.body
 
-      console.log('req.body', req.body)
-
-      if (!email || !password) {
-        return res
-          .status(400)
-          .json({ message: 'Email and password is required' })
-      }
-
-      const account: any = await Auth.findOne({ where: { Email: email, UserType: 'Doctor' } })
-      const user = await Doctors.findOne({ where: { Email: email } })
-      if (!account) {
-        const result: any = {
-          message: 'Account  Not Found!',
-          code: 400
-        }
-        return res.status(result.code).json(result)
-      }
-      const validPass = await CheckPassword(password, account.PasswordHash)
-      if (!validPass) {
-        const result: any = {
-          message: 'Incorret Password!',
-          code: 400
-        }
-        return res.status(result.code).json(result)
-      }
-
-      if (parseInt(account.dataValues.Verified) === 0) {
-        const result: any = {
-          message: 'Account Not Verified! Kindly check your email for verification link',
-          code: 400
-        }
-        return res.status(result.code).json(result)
-      }
-
-      if (user !== null) {
-        token = GenerateToken(user)
-      }
-
-      const data: any = {}
-      data.user = user
-      data.System = await Systems.findOne({ where: { id: 1 } })
-
-      res.status(200).json({ success: true, data, token })
-    } catch (error: any) {
-      const result: any = {
-        message: 'Error login in: ' + error.message,
-        code: 400
-      }
-      res.status(result.code).json(result)
-    }
-  }
 
   static async createDoctors (req: any, res: any): Promise<any> {
   try {

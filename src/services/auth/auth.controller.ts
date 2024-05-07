@@ -59,7 +59,7 @@ class AuthenticationController {
           .json({ success: false, message: 'Email and password is required', code: 400 })
       }
 
-      const account: any = await Auths.findOne({ where: { email } })
+      const account: any = await Auths.findOne({ where: { Email:email } })
 
       if (!account) {
         const result: any = {
@@ -90,22 +90,29 @@ class AuthenticationController {
       }
 
 
-      let user: any =  await Auths.findOne({ where: { Email: email } })
+      let user: any;
 
       if (account.UserType === 'Admin') {
         user = await Admin.findOne({ where: { Email: email } })
-        user = await user.update({ status: 'active' })
       } else if (account.UserType === 'doctor') {
-        user = await Doctor.findOne({ where: { email } })
-        user = await user.update({ status: 'active' })
+        user = await Doctor.findOne({ where: { Email: email } })
       } else if (account.UserType === 'patient') {
-        user = await Patient.findOne({ where: { email } })
+        user = await Patient.findOne({ where: {Email: email } })
       }
 
-      user.dataValues.Account = account
+
       if (user !== null) {
+        user.dataValues.Account = account
         token = GenerateToken(user)
+      }else{
+        const result: any = {
+          success: false,
+          message: 'User Not found!',
+          code: 400
+        }
+        return res.status(result.code).json(result)
       }
+
 
       delete user.dataValues.Account.dataValues.PasswordHash
       delete user.dataValues.Account.dataValues.RefreshToken
@@ -116,7 +123,7 @@ class AuthenticationController {
         message: 'Error login in: ' + error.message,
         code: 400
       }
-      res.status(result.code).json(result)
+    return  res.status(result.code).json(result)
     }
   }
 
@@ -124,7 +131,7 @@ class AuthenticationController {
     try {
       const { email, token } = req.params
 
-      const authdata: any = await Auths.findOne({ where: { email, token } })
+      const authdata: any = await Auths.findOne({ where: { Email:email, token } })
 
       if (authdata === null) {
         return res.status(404).send('Page not found')
@@ -292,7 +299,7 @@ class AuthenticationController {
         }
         return res.status(result.code).send(result)
       }
-      const account: any = await Auths.findOne({ where: { Email: data.email, role: authUser.Account.Role } })
+      const account: any = await Auths.findOne({ where: { Email: data.email, UserType: authUser.Account.UserType } })
       if (!account) {
         const result: any = {
           success: false,
