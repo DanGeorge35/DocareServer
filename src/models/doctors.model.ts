@@ -69,6 +69,18 @@ const Doctors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true
     },
+    NinName:{
+        type: DataTypes.STRING,
+      allowNull: true
+    },
+    NinAddress:{
+            type: DataTypes.STRING,
+      allowNull: true
+    },
+      PostalCode:{
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     NicFront: {
       type: DataTypes.STRING,
       allowNull: true
