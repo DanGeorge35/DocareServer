@@ -61,6 +61,10 @@ const Doctors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true
     },
+    Dob: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     ProfilePicture: {
       type: DataTypes.STRING,
       allowNull: true
