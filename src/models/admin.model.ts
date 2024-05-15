@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize'
-import sequelize from '../config/db'
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db';
 
 const Admin = sequelize.define(
   'admin',
@@ -22,13 +22,13 @@ const Admin = sequelize.define(
       allowNull: true
     }
   },
-  {
+  {}
+);
 
-  }
-)
+Admin.sync()
+  .then(() => {})
+  .catch((err: any) => {
+    console.error('Error creating Admin table:', err);
+  });
 
-Admin.sync().then(() => {}).catch((err: any) => {
-  console.error('Error creating Admin table:', err)
-})
-
-export default Admin
+export default Admin;

@@ -1,7 +1,7 @@
-import PatientsController from './patients.controller'
-import { Authorization } from '../../libs/utils/app.utility'
+import PatientsController from './patients.controller';
+import { Authorization } from '../../libs/utils/app.utility';
 
-const ENDPOINT_URL = '/api/v1/patients'
+const ENDPOINT_URL = '/api/v1/patients';
 const PatientsEndpoint = [
   {
     path: `${ENDPOINT_URL}/`,
@@ -26,7 +26,7 @@ const PatientsEndpoint = [
   {
     path: `${ENDPOINT_URL}/`,
     method: 'get',
-    handler: [ PatientsController.getallPatients]
+    handler: [PatientsController.getallPatients]
   },
   {
     path: `${ENDPOINT_URL}/:id`,
@@ -38,6 +38,6 @@ const PatientsEndpoint = [
     method: 'delete',
     handler: [Authorization, PatientsController.deletePatients]
   }
-]
+];
 
-export default PatientsEndpoint
+export default PatientsEndpoint;

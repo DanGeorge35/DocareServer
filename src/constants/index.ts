@@ -17,16 +17,16 @@ export const ITEM_STATUS = {
   BLOCKED: 'blocked',
   APPLIED: 'applied',
   SELF_DELETED: 'self_deleted'
-}
+};
 
 export const SHIPMENT_TYPES = {
   INTERNATIONAL: 'international',
   INTERSTATE: 'interstate'
-}
+};
 
 export const REGIONS = {
   SOUTH_WEST: 'SouthWest',
   SOUTH_EAST: 'SouthEast',
   NORTH_WEST: 'NorthWest',
   NORTH_EAST: 'NorthEast'
-}
+};

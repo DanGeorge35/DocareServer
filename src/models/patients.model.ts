@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize'
-import sequelize from '../config/db'
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db';
 
 const Patients = sequelize.define(
   'Patients',
@@ -48,15 +48,15 @@ const Patients = sequelize.define(
     Coordinate: {
       type: DataTypes.STRING,
       allowNull: true
-    },
+    }
   },
-  {
+  {}
+);
 
-  }
-)
+Patients.sync({ alter: true })
+  .then(() => {})
+  .catch((err: any) => {
+    console.error('Error creating Patients table:', err);
+  });
 
-Patients.sync({ alter: true }).then(() => {}).catch((err: any) => {
-  console.error('Error creating Patients table:', err)
-})
-
-export default Patients
+export default Patients;

@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize'
-import sequelize from '../config/db'
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db';
 
 const Systems = sequelize.define(
   'systems',
@@ -18,13 +18,13 @@ const Systems = sequelize.define(
       allowNull: true
     }
   },
-  {
+  {}
+);
 
-  }
-)
+Systems.sync()
+  .then(() => {})
+  .catch((err: any) => {
+    console.error('Error creating Systems table:', err);
+  });
 
-Systems.sync().then(() => {}).catch((err: any) => {
-  console.error('Error creating Systems table:', err)
-})
-
-export default Systems
+export default Systems;

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import Joi from 'joi'
+import Joi from 'joi';
 
 const schema = Joi.object({
   hospitalName: Joi.string().required().min(1),
@@ -15,21 +15,21 @@ const schema = Joi.object({
   hospitalArea: Joi.any().optional(),
   hospitalLogo: Joi.any().optional(),
   password: Joi.any().optional()
-})
+});
 // name : Joi.any().optional(); // for optional entry
 
 class AuthenticationValidation {
-  static async validateCreateHospitals (data: any): Promise<any> {
-    const { error, value } = schema.validate(data)
+  static async validateCreateHospitals(data: any): Promise<any> {
+    const { error, value } = schema.validate(data);
     if (error != null) {
-      error.details[0].message = error.details[0].message.replace(/\\|"|\\/g, '')
-      return { result: 'error', message: error.details[0].message }
+      error.details[0].message = error.details[0].message.replace(/\\|"|\\/g, '');
+      return { result: 'error', message: error.details[0].message };
     }
-    return { result: 'success', message: value }
+    return { result: 'success', message: value };
   }
 }
 
-export default AuthenticationValidation
+export default AuthenticationValidation;
 
 /* --------------------------------------------------------- POSTMAN TEST DATA STRUCTURE
 

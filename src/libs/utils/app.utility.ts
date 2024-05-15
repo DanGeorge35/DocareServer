@@ -1,56 +1,56 @@
-import nodemailer from 'nodemailer'
-import jwt from 'jsonwebtoken'
-import bcrypt from 'bcryptjs'
-import fs from 'fs'
-import axios from 'axios'
-import { type Fields } from 'formidable'
-import dotenv from 'dotenv'
+import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import axios from 'axios';
+import { type Fields } from 'formidable';
+import dotenv from 'dotenv';
 
-dotenv.config()
+dotenv.config();
 
-function Authorization (req: any, res: any, next: any): any {
+function Authorization(req: any, res: any, next: any): any {
   // eslint-disable-next-line no-unused-vars
-  const authHeader = req.headers.authorization
-  const token = authHeader?.split(' ')[1]
-  if (token == null) return res.status(401).send('Not Authorised')
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.split(' ')[1];
+  if (token == null) return res.status(401).send('Not Authorised');
 
   // eslint-disable-next-line consistent-return
-  const JWT_KEY: any = process.env.jwtkey
+  const JWT_KEY: any = process.env.jwtkey;
   jwt.verify(token, JWT_KEY, (err: any, user: any) => {
-    if (err !== null) return res.status(403).send('Invalid Token')
-    req.user = user
-    next()
-  })
+    if (err !== null) return res.status(403).send('Invalid Token');
+    req.user = user;
+    next();
+  });
 }
 
-function GenerateToken (data: any): string {
-  const JWT_SECRET: any = process.env.jwtkey
-  return jwt.sign({ data }, JWT_SECRET, { expiresIn: '30d' })
+function GenerateToken(data: any): string {
+  const JWT_SECRET: any = process.env.jwtkey;
+  return jwt.sign({ data }, JWT_SECRET, { expiresIn: '30d' });
 }
 
-async function CheckPassword (password: string, hash: string): Promise<boolean> {
-  return await bcrypt.compare(password, hash)
+async function CheckPassword(password: string, hash: string): Promise<boolean> {
+  return await bcrypt.compare(password, hash);
 }
 
-async function EncryptPassword (password: string): Promise<string> {
+async function EncryptPassword(password: string): Promise<string> {
   try {
-    const saltRounds = 10
-    return await bcrypt.hash(password, saltRounds)
+    const saltRounds = 10;
+    return await bcrypt.hash(password, saltRounds);
   } catch (error) {
-    console.error('Error encrypting password:', error)
-    return password
+    console.error('Error encrypting password:', error);
+    return password;
   }
 }
 
-async function SendMailJS (templateID: string, templateParams: any): Promise<void> {
+async function SendMailJS(templateID: string, templateParams: any): Promise<void> {
   const options = {
-    service_id:  process.env.EmailJS_service_id,
+    service_id: process.env.EmailJS_service_id,
     template_id: templateID,
-    user_id:  process.env.EmailJS_user_id,
+    user_id: process.env.EmailJS_user_id,
     template_params: templateParams
-  }
+  };
 
-  const ddata = JSON.stringify(options)
+  const ddata = JSON.stringify(options);
 
   const config = {
     method: 'post',
@@ -59,27 +59,27 @@ async function SendMailJS (templateID: string, templateParams: any): Promise<voi
     headers: {
       'Content-Type': 'application/json'
     }
-  }
+  };
 
   await axios(config)
     .then((response) => {
-      console.log(JSON.stringify(response.data))
+      console.log(JSON.stringify(response.data));
     })
     .catch((error) => {
-      console.log(error)
-    })
+      console.log(error);
+    });
 }
 
-async function SendMail (mail: any): Promise<void> {
+async function SendMail(mail: any): Promise<void> {
   const transporter = nodemailer.createTransport({
-    host:  process.env.EmailHost,
+    host: process.env.EmailHost,
     port: 465,
     secure: true, // Use secure connection (TLS/SSL)
     auth: {
       user: process.env.EmailUser,
-      pass: process.env.EmailPassword,
+      pass: process.env.EmailPassword
     }
-  })
+  });
 
   const htmlMessage = `
   <div style="background-color: black;">
@@ -94,7 +94,7 @@ async function SendMail (mail: any): Promise<void> {
     <div style="text-align: center; background-color: black;color:yellow;padding:5px;font-size:15px">
       <b>Cadence:</b> Dine in Style, Sip with harmony
     </div>
-  </div>`
+  </div>`;
 
   // Email options
   const mailOptions = {
@@ -102,52 +102,50 @@ async function SendMail (mail: any): Promise<void> {
     to: mail.to_email,
     subject: mail.subject,
     html: htmlMessage
-  }
+  };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error != null) {
-      console.error('Error:', error.message)
+      console.error('Error:', error.message);
     } else {
-      console.log('Email sent:', info.response)
+      console.log('Email sent:', info.response);
     }
-  })
+  });
 }
 
-function adjustFieldsToValue (
-  fieldsObject: Fields<string>
-): Record<string, string> {
-  const adjustedFields: Record<string, string> = {}
+function adjustFieldsToValue(fieldsObject: Fields<string>): Record<string, string> {
+  const adjustedFields: Record<string, string> = {};
 
   for (const fieldName in fieldsObject) {
     if (fieldName in fieldsObject) {
-      const fieldValue = fieldsObject[fieldName]?.[0] ?? '' // Using optional chaining and nullish coalescing
-      adjustedFields[fieldName] = fieldValue
+      const fieldValue = fieldsObject[fieldName]?.[0] ?? ''; // Using optional chaining and nullish coalescing
+      adjustedFields[fieldName] = fieldValue;
     }
   }
-  return adjustedFields
+  return adjustedFields;
 }
 
-function RenameUploadFile (uploadedfile: any, filename: string): string {
-  const oldPath = uploadedfile.filepath
+function RenameUploadFile(uploadedfile: any, filename: string): string {
+  const oldPath = uploadedfile.filepath;
   const extension = uploadedfile.originalFilename.substring(
     uploadedfile.originalFilename.lastIndexOf('.')
-  )
-  const newPath = `.${filename}${extension}`
-  const publicPath = `${process.env.DOMAIN}/${process.env.NODE_ENV}${filename}${extension}`
-  fs.copyFileSync(oldPath, newPath)
-  fs.unlinkSync(oldPath)
-  return publicPath
+  );
+  const newPath = `.${filename}${extension}`;
+  const publicPath = `${process.env.DOMAIN}/${process.env.NODE_ENV}${filename}${extension}`;
+  fs.copyFileSync(oldPath, newPath);
+  fs.unlinkSync(oldPath);
+  return publicPath;
 }
 
-function getUIDfromDate (prefix = ''): string {
-  const date = new Date()
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1 // Months are zero-based
-  const day = date.getDate()
-  const hour = date.getHours()
-  const minute = date.getMinutes()
-  const second = date.getSeconds()
-  const random = (Math.floor(Math.random() * 9) + 1).toString()
+function getUIDfromDate(prefix = ''): string {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1; // Months are zero-based
+  const day = date.getDate();
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  const second = date.getSeconds();
+  const random = (Math.floor(Math.random() * 9) + 1).toString();
   const uniqueNumber =
     year.toString() +
     month.toString() +
@@ -155,13 +153,13 @@ function getUIDfromDate (prefix = ''): string {
     hour.toString() +
     minute.toString() +
     second.toString() +
-    random.substring(0, 2)
+    random.substring(0, 2);
   // uniqueNumber = uniqueNumber.substring(uniqueNumber.length - length);
 
   if (prefix !== '') {
-    return prefix + uniqueNumber.toString() // Append prefix if it is provided
+    return prefix + uniqueNumber.toString(); // Append prefix if it is provided
   }
-  return `IDN${uniqueNumber.toString()}`
+  return `IDN${uniqueNumber.toString()}`;
 }
 
 export {
@@ -174,4 +172,4 @@ export {
   getUIDfromDate,
   SendMail,
   SendMailJS
-}
+};

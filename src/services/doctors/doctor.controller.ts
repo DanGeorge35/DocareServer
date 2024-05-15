@@ -2,63 +2,65 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 /* eslint-disable-next-line @typescript-eslint/no-misused-promises */
-import { getUIDfromDate, EncryptPassword, GenerateToken, CheckPassword, SendMail } from '../../libs/utils/app.utility'
-import Doctors from '../../models/doctors.model'
-import Auth from '../../models/auths.model'
-import DoctorsValidation from './doctors.validation'
+import {
+  getUIDfromDate,
+  EncryptPassword,
+  GenerateToken,
+  CheckPassword,
+  SendMail
+} from '../../libs/utils/app.utility';
+import Doctors from '../../models/doctors.model';
+import Auth from '../../models/auths.model';
+import DoctorsValidation from './doctors.validation';
 // import Investments from '../../models/history.model'
-import Systems from '../../models/systems.model'
-import sequelize from '../../config/db'
-import { QueryTypes } from 'sequelize'
+import Systems from '../../models/systems.model';
+import sequelize from '../../config/db';
+import { QueryTypes } from 'sequelize';
 
 class DoctorsController {
-
-
-  static async createDoctors (req: any, res: any): Promise<any> {
-  try {
-      const data = req.body
-      const validate = await DoctorsValidation.validateCreateDoctors(data)
+  static async createDoctors(req: any, res: any): Promise<any> {
+    try {
+      const data = req.body;
+      const validate = await DoctorsValidation.validateCreateDoctors(data);
       if (validate.result === 'error') {
-        const result: { code: number, message: string } = {
+        const result: { code: number; message: string } = {
           code: 400,
           message: validate.message
-        }
-        return res.status(result.code).send(result)
+        };
+        return res.status(result.code).send(result);
       }
 
-      const checkExist = await Doctors.findOne({ where: { Email: data.Email } })
+      const checkExist = await Doctors.findOne({ where: { Email: data.Email } });
       if (checkExist !== null) {
         return res.status(400).send({
           message: 'Account Already Exist',
           code: 400
-        })
+        });
       }
 
-      const DID = getUIDfromDate('DOC')
-      data.UserID = DID
-      data.UserType = 'doctor'
-      const dpaswprd = data.Password ?? DID
+      const DID = getUIDfromDate('DOC');
+      data.UserID = DID;
+      data.UserType = 'doctor';
+      const dpaswprd = data.Password ?? DID;
 
-      const account: any = {}
-      account.UserID = data.UserID
-      account.FirstName = data.FirstName
-      account.LastName = data.LastName
-      account.Email = data.Email
-      account.Role = data.UserType
-      account.UserType = 'doctor'
-      account.PasswordHash = await EncryptPassword(dpaswprd)
-      account.RefreshToken = account.PasswordHash
-      account.Token = DID
-      account.Verified = '0'
-      account.Status = 'Pending'
+      const account: any = {};
+      account.UserID = data.UserID;
+      account.FirstName = data.FirstName;
+      account.LastName = data.LastName;
+      account.Email = data.Email;
+      account.Role = data.UserType;
+      account.UserType = 'doctor';
+      account.PasswordHash = await EncryptPassword(dpaswprd);
+      account.RefreshToken = account.PasswordHash;
+      account.Token = DID;
+      account.Verified = '0';
+      account.Status = 'Pending';
 
-      const daccount = await Auth.create({ ...account })
+      const daccount = await Auth.create({ ...account });
 
-      const dDoctors = await Doctors.create({ ...data })
+      const dDoctors = await Doctors.create({ ...data });
 
-
-
-      dDoctors.dataValues.account = daccount
+      dDoctors.dataValues.account = daccount;
       // send mail
       const templateParams = {
         to_name: data.FirstName,
@@ -88,60 +90,60 @@ Best regards,<br><br>
 <br>
 `,
         to_email: data.Email
-      }
-      res.status(201).json({ success: true, data: dDoctors })
-    //  await SendMail(templateParams)
+      };
+      res.status(201).json({ success: true, data: dDoctors });
+      //  await SendMail(templateParams)
     } catch (error: any) {
       return res.status(400).send({
         message: error.message,
         code: 400
-      })
+      });
     }
-  };
+  }
 
-  static async createDoctors2 (req: any, res: any): Promise<any> {
+  static async createDoctors2(req: any, res: any): Promise<any> {
     try {
-      const data = req.body
-      const validate = await DoctorsValidation.validateCreateDoctors(data)
+      const data = req.body;
+      const validate = await DoctorsValidation.validateCreateDoctors(data);
       if (validate.result === 'error') {
-        const result: { code: number, message: string } = {
+        const result: { code: number; message: string } = {
           code: 400,
           message: validate.message
-        }
-        return res.status(result.code).send(result)
+        };
+        return res.status(result.code).send(result);
       }
 
-      const checkExist = await Doctors.findOne({ where: { Email: data.Email } })
+      const checkExist = await Doctors.findOne({ where: { Email: data.Email } });
       if (checkExist !== null) {
         return res.status(400).send({
           message: 'This Doctor  Already Exist',
           code: 400
-        })
+        });
       }
 
-      const DID = getUIDfromDate('INV')
-      data.UserID = DID
-      data.UserType = 'Doctor'
-      const dpaswprd = data.Password ?? DID
+      const DID = getUIDfromDate('INV');
+      data.UserID = DID;
+      data.UserType = 'Doctor';
+      const dpaswprd = data.Password ?? DID;
 
-      const account: any = {}
-      account.UserID = data.UserID
-      account.FullName = data.FullName
-      account.Email = data.Email
-      account.Role = data.UserType
-      account.UserType = 'Doctor'
-      account.PasswordHash = await EncryptPassword(dpaswprd)
-      account.RefreshToken = account.PasswordHash
-      account.Token = DID
-      account.Verified = '0'
+      const account: any = {};
+      account.UserID = data.UserID;
+      account.FullName = data.FullName;
+      account.Email = data.Email;
+      account.Role = data.UserType;
+      account.UserType = 'Doctor';
+      account.PasswordHash = await EncryptPassword(dpaswprd);
+      account.RefreshToken = account.PasswordHash;
+      account.Token = DID;
+      account.Verified = '0';
 
-      const daccount = await Auth.create({ ...account })
+      const daccount = await Auth.create({ ...account });
 
-      const dDoctors = await Doctors.create({ ...data })
+      const dDoctors = await Doctors.create({ ...data });
 
-      data.doctorId = data.UserID
+      data.doctorId = data.UserID;
 
-      dDoctors.dataValues.account = daccount
+      dDoctors.dataValues.account = daccount;
       // send mail
       const templateParams = {
         to_name: data.FullName,
@@ -171,78 +173,80 @@ Ola Daniels<br>
 Chief Investment Officer<br>
 `,
         to_email: data.Email
-      }
-      res.status(201).json({ success: true, data: dDoctors })
-      await SendMail(templateParams)
+      };
+      res.status(201).json({ success: true, data: dDoctors });
+      await SendMail(templateParams);
     } catch (error: any) {
       return res.status(400).send({
         message: error.message,
         code: 400
-      })
+      });
     }
-  };
+  }
 
-  static async verifyaccount (req: any, res: any): Promise<any> {
+  static async verifyaccount(req: any, res: any): Promise<any> {
     try {
-      const { email, token } = req.params
+      const { email, token } = req.params;
 
-      const singleDoctors = await Auth.findOne({ where: { Email: email, Token: token } })
+      const singleDoctors = await Auth.findOne({ where: { Email: email, Token: token } });
 
       if (singleDoctors === null) {
-        return res.status(400).json({ success: false, data: `No Doctor with the id ${req.params.id}` })
+        return res
+          .status(400)
+          .json({ success: false, data: `No Doctor with the id ${req.params.id}` });
       }
 
-      await singleDoctors.update({ Verified: '1' })
+      await singleDoctors.update({ Verified: '1' });
       // return response as html text
-      res.setHeader('Content-Type', 'text/html')
+      res.setHeader('Content-Type', 'text/html');
       res.write(`
           <h3>Your account has been verified successfully</h3><br/>
           Please click on this <a href="https://cadencepub.com/signin/">link to login.</a>
-        `)
-      return res.end()
+        `);
+      return res.end();
     } catch (error: any) {
-      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` }
-      console.error(error)
-      return res.status(400).send(err)
+      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` };
+      console.error(error);
+      return res.status(400).send(err);
     }
   }
 
-  static async getSingleDoctors (req: any, res: any): Promise<any> {
+  static async getSingleDoctors(req: any, res: any): Promise<any> {
     try {
-      const { id } = req.params
+      const { id } = req.params;
 
-      const singleDoctors = await Doctors.findOne({ where: { id } })
+      const singleDoctors = await Doctors.findOne({ where: { id } });
 
       if (singleDoctors === null) {
-        return res.status(400).json({ success: false, data: 'Invalid link' })
+        return res.status(400).json({ success: false, data: 'Invalid link' });
       }
 
-      return res.status(200).json({ success: true, data: singleDoctors })
+      return res.status(200).json({ success: true, data: singleDoctors });
     } catch (error: any) {
-      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` }
-      console.error(error)
-      return res.status(400).send(err)
+      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` };
+      console.error(error);
+      return res.status(400).send(err);
     }
   }
 
-  static async getallDoctors (req: any, res: any): Promise<any> {
-    const PAGE_SIZE = 10
+  static async getallDoctors(req: any, res: any): Promise<any> {
+    const PAGE_SIZE = 10;
 
     try {
-      let page: number = 1
+      let page: number = 1;
 
       if (req.query.page && typeof req.query.page === 'string') {
-        page = parseInt(req.query.page, 10)
+        page = parseInt(req.query.page, 10);
       }
 
       const allDoctorss = await Doctors.findAndCountAll({
         limit: PAGE_SIZE,
         offset: (page - 1) * PAGE_SIZE
-      })
+      });
 
-      const totalPages = Math.ceil(allDoctorss.count / PAGE_SIZE)
+      const totalPages = Math.ceil(allDoctorss.count / PAGE_SIZE);
 
-    return   res.status(200).json({
+      return res.status(200).json({
         success: true,
         data: allDoctorss.rows,
         pagination: {
@@ -250,79 +254,83 @@ Chief Investment Officer<br>
           totalPages,
           pageSize: PAGE_SIZE
         }
-      })
+      });
     } catch (error: any) {
-      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` }
-      console.error(error)
-      return res.status(400).send(err)
+      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` };
+      console.error(error);
+      return res.status(400).send(err);
     }
   }
 
   /**
- * Update doctor information.
- *
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @returns {Promise<any>} A Promise that resolves to the response.
- */
-  static async updateDoctors (req: any, res: any): Promise<any> {
+   * Update doctor information.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @returns {Promise<any>} A Promise that resolves to the response.
+   */
+  static async updateDoctors(req: any, res: any): Promise<any> {
     try {
-      let agentId
+      let agentId;
       if (req.user.data.UserType === 'Doctor') {
         if (parseInt(req.params.id) === req.user.data.id) {
-          agentId = parseInt(req.params.id)
+          agentId = parseInt(req.params.id);
         } else {
-          return res.status(401).json({ success: true, message: 'You are not allowed to perform this action!' })
+          return res
+            .status(401)
+            .json({ success: true, message: 'You are not allowed to perform this action!' });
         }
       } else if (req.user.data.UserType === 'Admin') {
-        agentId = parseInt(req.params.id)
+        agentId = parseInt(req.params.id);
       } else {
-        return res.status(401).json({ success: true, message: 'You are not authorized for this action!' })
+        return res
+          .status(401)
+          .json({ success: true, message: 'You are not authorized for this action!' });
       }
 
-      const updatedInfo = req.body
+      const updatedInfo = req.body;
 
-      const agent = await Doctors.findByPk(agentId)
+      const agent = await Doctors.findByPk(agentId);
 
       if (!agent) {
-        return res.status(404).json({ success: false, message: 'Doctor not found' })
+        return res.status(404).json({ success: false, message: 'Doctor not found' });
       }
 
-      await agent.update(updatedInfo)
+      await agent.update(updatedInfo);
 
-      return res.status(200).json({ success: true, data: agent, message: 'Doctor information updated' })
+      return res
+        .status(200)
+        .json({ success: true, data: agent, message: 'Doctor information updated' });
     } catch (error: any) {
-      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` }
-      console.error(error)
-      return res.status(400).send(err)
+      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` };
+      console.error(error);
+      return res.status(400).send(err);
     }
   }
 
-  static async deleteDoctors (req: any, res: any): Promise<any> {
+  static async deleteDoctors(req: any, res: any): Promise<any> {
     try {
-      const doctorsId = req.params.id
+      const doctorsId = req.params.id;
 
-      const doctors = await Doctors.findByPk(doctorsId)
+      const doctors = await Doctors.findByPk(doctorsId);
 
       if (!doctors) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'Doctors not found' })
+        return res.status(404).json({ success: false, message: 'Doctors not found' });
       }
-      const dauth = await Auth.findOne({ where: { UserID: doctors.dataValues.UserID } })
+      const dauth = await Auth.findOne({ where: { UserID: doctors.dataValues.UserID } });
       if (dauth) {
-        await dauth.destroy()
+        await dauth.destroy();
       }
 
-      await doctors.destroy()
+      await doctors.destroy();
 
-      res.status(200).json({ success: true, message: 'Doctor deleted' })
+      res.status(200).json({ success: true, message: 'Doctor deleted' });
     } catch (error: any) {
-      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` }
-      console.error(error)
-      return res.status(400).send(err)
+      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` };
+      console.error(error);
+      return res.status(400).send(err);
     }
   }
 }
 
-export default DoctorsController
+export default DoctorsController;

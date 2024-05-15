@@ -1,7 +1,7 @@
-import AdminController from './admin.controller'
-import { Authorization } from '../../libs/utils/app.utility'
+import AdminController from './admin.controller';
+import { Authorization } from '../../libs/utils/app.utility';
 
-const ENDPOINT_URL = '/api/v1/admin'
+const ENDPOINT_URL = '/api/v1/admin';
 const AdminEndpoint = [
   {
     path: `${ENDPOINT_URL}/`,
@@ -39,6 +39,6 @@ const AdminEndpoint = [
     method: 'delete',
     handler: [Authorization, AdminController.deleteAdmin]
   }
-]
+];
 
-export default AdminEndpoint
+export default AdminEndpoint;

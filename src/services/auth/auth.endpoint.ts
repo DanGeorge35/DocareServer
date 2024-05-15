@@ -1,7 +1,7 @@
-import AuthController from './auth.controller'
-import { Authorization } from '../../libs/utils/app.utility'
+import AuthController from './auth.controller';
+import { Authorization } from '../../libs/utils/app.utility';
 
-const ENDPOINT_URL = '/api/v1/auth'
+const ENDPOINT_URL = '/api/v1/auth';
 const AuthEndpoint = [
   {
     path: '/verify/account/:email/:token',
@@ -11,7 +11,7 @@ const AuthEndpoint = [
   {
     path: `${ENDPOINT_URL}/changepassword`,
     method: 'post',
-    handler: [Authorization,AuthController.changepassword]
+    handler: [Authorization, AuthController.changepassword]
   },
   {
     path: `${ENDPOINT_URL}/changepasswordreset`,
@@ -28,6 +28,6 @@ const AuthEndpoint = [
     method: 'post',
     handler: [AuthController.login]
   }
-]
+];
 
-export default AuthEndpoint
+export default AuthEndpoint;

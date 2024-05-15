@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize'
-import sequelize from '../config/db'
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db';
 
 const Doctors = sequelize.define(
   'doctors',
@@ -49,6 +49,38 @@ const Doctors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true
     },
+    Specialization: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    Experience: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    ProfilePicture: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    CV: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    NicFront: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    NicBack: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    Status: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    PracticingTenure: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     ratings: {
       type: DataTypes.STRING,
       allowNull: true
@@ -64,15 +96,15 @@ const Doctors = sequelize.define(
     AccountName: {
       type: DataTypes.STRING,
       allowNull: true
-    },
+    }
   },
-  {
+  {}
+);
 
-  }
-)
+Doctors.sync({ alter: true })
+  .then(() => {})
+  .catch((err: any) => {
+    console.error('Error creating Doctors table:', err);
+  });
 
-Doctors.sync({ alter: true }).then(() => {}).catch((err: any) => {
-  console.error('Error creating Doctors table:', err)
-})
-
-export default Doctors
+export default Doctors;
