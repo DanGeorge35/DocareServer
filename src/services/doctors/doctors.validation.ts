@@ -5,7 +5,11 @@ const schema = Joi.object({
   FirstName: Joi.string().required().min(1),
   LastName: Joi.string().required().min(1),
   Email: Joi.string().required().min(1),
-  Password: Joi.string().required().min(1)
+  Password: Joi.string().required().min(1),
+  Address: Joi.string().required().min(1),
+  PracticingTenure : Joi.string().required().min(1),
+  Specialization : Joi.string().required().min(1),
+  Dob : Joi.string().required().min(1),
 });
 
 const schema2 = Joi.object({
@@ -21,7 +25,11 @@ const schema2 = Joi.object({
   ratings: Joi.any().optional(),
   BankName: Joi.any().optional(),
   AccountNumber: Joi.any().optional(),
-  AccountName: Joi.any().optional()
+  AccountName: Joi.any().optional(),
+  Experience: Joi.any().optional(),
+  Address: Joi.any().optional(),
+  PracticingTenure : Joi.any().optional(),
+  Specialization : Joi.any().optional(),
 });
 
 // name : Joi.any().optional(); // for optional entry

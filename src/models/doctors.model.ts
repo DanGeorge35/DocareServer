@@ -49,6 +49,10 @@ const Doctors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true
     },
+    Address: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     Specialization: {
       type: DataTypes.STRING,
       allowNull: true
@@ -73,10 +77,6 @@ const Doctors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true
     },
-    Status: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
     PracticingTenure: {
       type: DataTypes.STRING,
       allowNull: true
@@ -96,7 +96,11 @@ const Doctors = sequelize.define(
     AccountName: {
       type: DataTypes.STRING,
       allowNull: true
-    }
+    },
+    Status: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
   },
   {}
 );
