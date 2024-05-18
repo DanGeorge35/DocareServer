@@ -5,10 +5,11 @@ import fs from 'fs';
 import axios from 'axios';
 import { type Fields } from 'formidable';
 import dotenv from 'dotenv';
+import sharp from 'sharp';
 
 dotenv.config();
 
-function Authorization(req: any, res: any, next: any): any {
+const Authorization = (req: any, res: any, next: any): any => {
   // eslint-disable-next-line no-unused-vars
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(' ')[1];
@@ -23,16 +24,16 @@ function Authorization(req: any, res: any, next: any): any {
   });
 }
 
-function GenerateToken(data: any): string {
+const GenerateToken =(data: any): string => {
   const JWT_SECRET: any = process.env.jwtkey;
   return jwt.sign({ data }, JWT_SECRET, { expiresIn: '30d' });
 }
 
-async function CheckPassword(password: string, hash: string): Promise<boolean> {
+ const CheckPassword = async (password: string, hash: string): Promise<boolean>  => {
   return await bcrypt.compare(password, hash);
 }
 
-async function EncryptPassword(password: string): Promise<string> {
+const EncryptPassword = async (password: string): Promise<string> => {
   try {
     const saltRounds = 10;
     return await bcrypt.hash(password, saltRounds);
@@ -42,7 +43,7 @@ async function EncryptPassword(password: string): Promise<string> {
   }
 }
 
-async function SendMailJS(templateID: string, templateParams: any): Promise<void> {
+ const SendMailJS = async (templateID: string, templateParams: any): Promise<void> => {
   const options = {
     service_id: process.env.EmailJS_service_id,
     template_id: templateID,
@@ -70,7 +71,7 @@ async function SendMailJS(templateID: string, templateParams: any): Promise<void
     });
 }
 
-async function SendMail(mail: any): Promise<void> {
+const SendMail = async (mail: any): Promise<void>  => {
   const transporter = nodemailer.createTransport({
     host: process.env.EmailHost,
     port: 465,
@@ -113,7 +114,7 @@ async function SendMail(mail: any): Promise<void> {
   });
 }
 
-function adjustFieldsToValue(fieldsObject: Fields<string>): Record<string, string> {
+const adjustFieldsToValue = (fieldsObject: Fields<string>): Record<string, string> =>{
   const adjustedFields: Record<string, string> = {};
 
   for (const fieldName in fieldsObject) {
@@ -125,7 +126,7 @@ function adjustFieldsToValue(fieldsObject: Fields<string>): Record<string, strin
   return adjustedFields;
 }
 
-function RenameUploadFile(uploadedfile: any, filename: string): string {
+const RenameUploadFile  =  (uploadedfile: any, filename: string): string  => {
   const oldPath = uploadedfile.filepath;
   const extension = uploadedfile.originalFilename.substring(
     uploadedfile.originalFilename.lastIndexOf('.')
@@ -137,7 +138,37 @@ function RenameUploadFile(uploadedfile: any, filename: string): string {
   return publicPath;
 }
 
-function getUIDfromDate(prefix = ''): string {
+const ProcessUploadImage = async(uploadedfile: any, filename: string): string => {
+  const oldPath = uploadedfile.filepath;
+  const extension = uploadedfile.originalFilename.substring(
+    uploadedfile.originalFilename.lastIndexOf('.')
+  );
+  const newPath = `.${filename}${extension}`;
+
+
+  const image = sharp(oldPath);
+    const metadata = await image.metadata();
+
+    if (metadata.width && metadata.height) {
+      // Calculate new dimensions based on the percentage
+      const newWidth = Math.round(metadata.width * (50 / 100));
+      const newHeight = Math.round(metadata.height * (50 / 100));
+
+      // Resize the image
+      await image
+        .resize(newWidth, newHeight)
+        .toFile(newPath);
+    const publicPath = `${process.env.DOMAIN}/${process.env.NODE_ENV}${filename}${extension}`;
+
+  fs.unlinkSync(oldPath);
+  return publicPath;
+}
+
+
+
+
+
+const getUIDfromDate = (prefix = ''): string  => {
   const date = new Date();
   const year = date.getFullYear();
   const month = date.getMonth() + 1; // Months are zero-based
@@ -171,5 +202,6 @@ export {
   adjustFieldsToValue,
   getUIDfromDate,
   SendMail,
-  SendMailJS
-};
+  SendMailJS,
+  ProcessUploadImage
+}
