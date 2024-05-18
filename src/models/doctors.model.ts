@@ -50,6 +50,10 @@ const Doctors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true
     },
+    Address: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     Specialization: {
       type: DataTypes.STRING,
       allowNull: true
