@@ -148,10 +148,10 @@ class AuthenticationController {
         `);
       await SendMail({
         subject: 'Email Successfully Verified',
-        name: `${authdata.firstName}`,
+        to_name: `${authdata.firstName}`,
         message: `Email is successfully verified. You can login now!
          \n\n Kind Regards,\nTurgl Team`,
-        email: authdata.email
+        to_email: authdata.email
       });
       return res.end();
     } catch (error: any) {
@@ -190,12 +190,12 @@ class AuthenticationController {
         .json({ success: true, message: 'Your account reset code has been sent to your email!' });
       await SendMail({
         subject: 'Pasword Reset Code',
-        name: `${account.dataValues.firstName}`,
+        to_name: `${account.dataValues.firstName}`,
         message: `Your account password reset code is:\n
         ${restToken}
 
          \n\nKind Regards,\nTurgl Team`,
-        email: account.email
+        to_email: account.email
       });
       return res.end();
     } catch (error: any) {
@@ -259,10 +259,10 @@ class AuthenticationController {
       res.status(200).json({ success: true, message: 'Password Changed Successfully!' });
       await SendMail({
         subject: 'Changed Password Successfully',
-        name: `${account.dataValues.firstName}`,
+        to_name: `${account.dataValues.firstName}`,
         message: `Your account password has been successfully updated.
          \n\n Kind Regards,\nTurgl Team`,
-        email: account.email
+        to_email: account.email
       });
       return res.end();
     } catch (error: any) {
@@ -329,10 +329,10 @@ class AuthenticationController {
       res.status(200).json({ success: true, message: 'Password Changed Successfully!' });
       await SendMail({
         subject: 'Changed Password Successfully',
-        name: `${account.dataValues.firstName}`,
+        to_name: `${account.dataValues.firstName}`,
         message: `Your account password has been successfully updated.
          \n\n Kind Regards,\nTurgl Team`,
-        email: account.email
+      to_email: account.email
       });
       return res.end();
     } catch (error: any) {

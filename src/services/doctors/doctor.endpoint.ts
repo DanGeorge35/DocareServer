@@ -9,9 +9,9 @@ const DoctorsEndpoint = [
     handler: [DoctorsController.createDoctors]
   },
   {
-    path: `${ENDPOINT_URL}/create`,
+    path: `${ENDPOINT_URL}/upload`,
     method: 'post',
-    handler: [DoctorsController.createDoctors2]
+    handler: [Authorization,DoctorsController.Upload]
   },
   {
     path: `${ENDPOINT_URL}/:id`,

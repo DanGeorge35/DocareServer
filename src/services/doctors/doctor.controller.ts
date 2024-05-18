@@ -2,6 +2,8 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 /* eslint-disable-next-line @typescript-eslint/no-misused-promises */
+import fs from 'fs'
+
 import {
   getUIDfromDate,
   EncryptPassword,
@@ -9,13 +11,20 @@ import {
   CheckPassword,
   SendMail
 } from '../../libs/utils/app.utility';
+
 import Doctors from '../../models/doctors.model';
 import Auth from '../../models/auths.model';
 import DoctorsValidation from './doctors.validation';
+import { IncomingForm, type Fields } from 'formidable'
+import {
+  ProcessUploadImage,
+  adjustFieldsToValue
+} from '../../libs/utils/app.utility'
 // import Investments from '../../models/history.model'
 import Systems from '../../models/systems.model';
 import sequelize from '../../config/db';
 import { QueryTypes } from 'sequelize';
+import { Certificate } from 'crypto';
 
 class DoctorsController {
   static async createDoctors(req: any, res: any): Promise<any> {
@@ -101,88 +110,130 @@ Best regards,<br><br>
     }
   }
 
-  static async createDoctors2(req: any, res: any): Promise<any> {
-    try {
-      const data = req.body;
-      const validate = await DoctorsValidation.validateCreateDoctors(data);
-      if (validate.result === 'error') {
-        const result: { code: number; message: string } = {
-          code: 400,
-          message: validate.message
-        };
-        return res.status(result.code).send(result);
+
+
+static async Upload (req: any, res: any, next: any): Promise<any> {
+      const form = new IncomingForm({ multiples: false });
+    form.parse(req, async (err, fields: Fields<string>, files) => {
+      try {
+        if (err) {
+          return res
+            .status(400)
+            .json({ code: 400, message: 'Error parsing the request' })
+        }
+
+        const User = req.user.data
+        const DID = User.UserID
+        const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB in bytes
+        const dir = '/public/doctor'
+        if(!fs.existsSync('./public')){
+          fs.mkdirSync('./public')
+        }
+        if (!fs.existsSync(`.${dir}`)) {
+              await fs.promises.mkdir(`.${dir}`)
+              .then(() => {
+                console.log('Directory created');
+              })
+              .catch((error) => {
+                console.error('Error creating directory:', error);
+              });
+        }
+
+        const data: any = adjustFieldsToValue(fields)
+
+      if(data){
+          const validate = await DoctorsValidation.validateDoctorData(data);
+          if (validate.result === 'error') {
+            const result: { code: number; message: string } = {
+              code: 400,
+              message: validate.message
+            };
+            return res.status(result.code).send(result);
+          }
       }
 
-      const checkExist = await Doctors.findOne({ where: { Email: data.Email } });
-      if (checkExist !== null) {
-        return res.status(400).send({
-          message: 'This Doctor  Already Exist',
-          code: 400
-        });
+
+      if (files.ProfilePicture){
+          if (files.ProfilePicture[0].size > MAX_FILE_SIZE) {
+              return res
+                .status(413)
+                .send({ code: 413, message: 'ProfilePicture File size exceeds the 2 MB limit' })
+          }
+
+          const ProfilePicture = files.ProfilePicture[0]
+          data.ProfilePicture  = await ProcessUploadImage(
+            ProfilePicture,
+            `${dir}/${DID}-PHOTO`
+          )
+
       }
 
-      const DID = getUIDfromDate('INV');
-      data.UserID = DID;
-      data.UserType = 'Doctor';
-      const dpaswprd = data.Password ?? DID;
+        if (files.Certification){
+          if (files.Certification[0].size > MAX_FILE_SIZE) {
+              return res
+                .status(413)
+                .send({ code: 413, message: ' Certification File size exceeds the 2 MB limit' })
+          }
 
-      const account: any = {};
-      account.UserID = data.UserID;
-      account.FullName = data.FullName;
-      account.Email = data.Email;
-      account.Role = data.UserType;
-      account.UserType = 'Doctor';
-      account.PasswordHash = await EncryptPassword(dpaswprd);
-      account.RefreshToken = account.PasswordHash;
-      account.Token = DID;
-      account.Verified = '0';
+          const Certification = files.Certification[0]
+          data.Certification  = await ProcessUploadImage(
+            Certification,
+            `${dir}/${DID}-Certification`
+          )
 
-      const daccount = await Auth.create({ ...account });
+      }
 
-      const dDoctors = await Doctors.create({ ...data });
 
-      data.doctorId = data.UserID;
+        if (files.KycNicFront){
+          if (files.KycNicFront[0].size > MAX_FILE_SIZE) {
+              return res
+                .status(413)
+                .send({ code: 413, message: ' NIN Frontside File size exceeds the 2 MB limit' })
+          }
 
-      dDoctors.dataValues.account = daccount;
-      // send mail
-      const templateParams = {
-        to_name: data.FullName,
-        reply_to: 'info@docare.com',
-        subject: 'Welcome to Docare Medical Platform!',
-        message: `
-Thank you for expressing interest in investing with Cadence. We are thrilled to have you on board as a potential doctor in our exciting venture.<br>
+          const KycNicFront = files.KycNicFront[0]
+          data.KycNicFront  = await ProcessUploadImage(
+            KycNicFront,
+            `${dir}/${DID}-KycNicFront`
+          )
 
-Your investment journey with Cadence starts now! To complete your investment and unlock exclusive benefits as a Cadence doctor,
-<br> please proceed to your account verification  with the link below : <br>
- Link : <a href="https://cadencepub.com/${process.env.NODE_ENV}/api/v1/doctors/verify/${data.Email}/${DID}?">https://cadencepub.com/${process.env.NODE_ENV}/api/v1/doctors/verify/${data.Email}/${DID}?</a><br><br>
+      }
 
-<b>Here's what you can expect from your Cadence investment:</b><br>
-  <span style="margin-left:20px"><span>  🔹Access to detailed investment information and updates.<br>
+        if (files.KycNicBack){
+          if (files.KycNicBack[0].size > MAX_FILE_SIZE) {
+              return res
+                .status(413)
+                .send({ code: 413, message: 'NIN Backside File size exceeds the 2 MB limit' })
+          }
 
-  <span style="margin-left:20px"><span>   🔹Regular updates on Cadence's progress and performance.<br>
+          const KycNicBack = files.KycNicBack[0]
+          data.KycNicBack  = await ProcessUploadImage(
+            KycNicBack,
+            `${dir}/${DID}-KycNicBack`
+          )
 
-  <span style="margin-left:20px"><span>   🔹Opportunities to participate in exclusive doctor events and activities.<br>
+      }
 
-  <span style="margin-left:20px"><span>   🔹Potential for attractive returns on your investment.<br><br>
+        let doctor = await Doctors.findByPk(User.id);
 
-Thank you for choosing to invest with Cadence. <br>We look forward to a successful partnership and sharing our journey to success with you.<br>
-<br>
-Best regards,<br><br>
+        if (!doctor) {
+          return res.status(404).json({ success: false, message: 'Doctor not found' });
+        }
 
-Ola Daniels<br>
-Chief Investment Officer<br>
-`,
-        to_email: data.Email
-      };
-      res.status(201).json({ success: true, data: dDoctors });
-      await SendMail(templateParams);
-    } catch (error: any) {
-      return res.status(400).send({
-        message: error.message,
-        code: 400
-      });
-    }
+      doctor = await doctor.update(data);
+
+      return res
+        .status(201)
+        .json({ success: true, data: doctor, message: 'Doctor Picture updated' });
+
+      } catch (error: any) {
+        const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` }
+        console.error(error)
+        return res.status(400).send(err)
+      }
+    })
   }
+
 
   static async verifyaccount(req: any, res: any): Promise<any> {
     try {

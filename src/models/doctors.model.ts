@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/db';
+import { Certificate } from 'crypto';
 
 const Doctors = sequelize.define(
   'doctors',
@@ -49,10 +50,6 @@ const Doctors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true
     },
-    Address: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
     Specialization: {
       type: DataTypes.STRING,
       allowNull: true
@@ -61,35 +58,7 @@ const Doctors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true
     },
-    Dob: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
     ProfilePicture: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    CV: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    NinName:{
-        type: DataTypes.STRING,
-      allowNull: true
-    },
-    NinAddress:{
-            type: DataTypes.STRING,
-      allowNull: true
-    },
-      PostalCode:{
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    NicFront: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    NicBack: {
       type: DataTypes.STRING,
       allowNull: true
     },
@@ -97,7 +66,7 @@ const Doctors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true
     },
-    ratings: {
+    Ratings: {
       type: DataTypes.STRING,
       allowNull: true
     },
@@ -113,9 +82,42 @@ const Doctors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true
     },
-    Status: {
+    Certification: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    KycNinName:{
+        type: DataTypes.STRING,
+      allowNull: true
+    },
+    KycNinNumber:{
+        type: DataTypes.STRING,
+      allowNull: true
+    },
+    KycNinAddress:{
+            type: DataTypes.STRING,
+      allowNull: true
+    },
+    KycDob: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    KycPostalCode:{
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    KycNicFront: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    KycNicBack: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    Status: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue:"Pending"
     },
   },
   {}

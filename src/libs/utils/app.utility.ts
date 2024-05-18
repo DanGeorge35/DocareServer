@@ -3,35 +3,33 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import axios from 'axios';
-import { type Fields } from 'formidable';
+import { Fields } from 'formidable';
 import dotenv from 'dotenv';
 import sharp from 'sharp';
 
 dotenv.config();
 
-const Authorization = (req: any, res: any, next: any): any => {
-  // eslint-disable-next-line no-unused-vars
+const Authorization = (req: any, res: any, next: any): void => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(' ')[1];
-  if (token == null) return res.status(401).send('Not Authorised');
+  if (!token) return res.status(401).send('Not Authorized');
 
-  // eslint-disable-next-line consistent-return
-  const JWT_KEY: any = process.env.jwtkey;
+  const JWT_KEY: string = process.env.jwtkey as string;
   jwt.verify(token, JWT_KEY, (err: any, user: any) => {
-    if (err !== null) return res.status(403).send('Invalid Token');
+    if (err) return res.status(401).send('Invalid Token');
     req.user = user;
     next();
   });
-}
+};
 
-const GenerateToken =(data: any): string => {
-  const JWT_SECRET: any = process.env.jwtkey;
+const GenerateToken = (data: any): string => {
+  const JWT_SECRET: string = process.env.jwtkey as string;
   return jwt.sign({ data }, JWT_SECRET, { expiresIn: '30d' });
-}
+};
 
- const CheckPassword = async (password: string, hash: string): Promise<boolean>  => {
+const CheckPassword = async (password: string, hash: string): Promise<boolean> => {
   return await bcrypt.compare(password, hash);
-}
+};
 
 const EncryptPassword = async (password: string): Promise<string> => {
   try {
@@ -41,45 +39,42 @@ const EncryptPassword = async (password: string): Promise<string> => {
     console.error('Error encrypting password:', error);
     return password;
   }
-}
+};
 
- const SendMailJS = async (templateID: string, templateParams: any): Promise<void> => {
+const SendMailJS = async (templateID: string, templateParams: any): Promise<void> => {
   const options = {
     service_id: process.env.EmailJS_service_id,
     template_id: templateID,
     user_id: process.env.EmailJS_user_id,
-    template_params: templateParams
+    template_params: templateParams,
   };
-
-  const ddata = JSON.stringify(options);
 
   const config = {
     method: 'post',
     url: 'https://api.emailjs.com/api/v1.0/email/send',
-    data: ddata,
+    data: JSON.stringify(options),
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   };
 
-  await axios(config)
-    .then((response) => {
-      console.log(JSON.stringify(response.data));
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
+  try {
+    const response = await axios(config);
+    console.log(JSON.stringify(response.data));
+  } catch (error) {
+    console.error(error);
+  }
+};
 
-const SendMail = async (mail: any): Promise<void>  => {
+const SendMail = async (mail: { to_email: string; to_name: string; subject: string; message: string }): Promise<void> => {
   const transporter = nodemailer.createTransport({
     host: process.env.EmailHost,
     port: 465,
     secure: true, // Use secure connection (TLS/SSL)
     auth: {
       user: process.env.EmailUser,
-      pass: process.env.EmailPassword
-    }
+      pass: process.env.EmailPassword,
+    },
   });
 
   const htmlMessage = `
@@ -97,101 +92,82 @@ const SendMail = async (mail: any): Promise<void>  => {
     </div>
   </div>`;
 
-  // Email options
   const mailOptions = {
     from: '"Cadence" <contact@cadencepub.com>',
     to: mail.to_email,
     subject: mail.subject,
-    html: htmlMessage
+    html: htmlMessage,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
-    if (error != null) {
+    if (error) {
       console.error('Error:', error.message);
     } else {
       console.log('Email sent:', info.response);
     }
   });
-}
+};
 
-const adjustFieldsToValue = (fieldsObject: Fields<string>): Record<string, string> =>{
+const adjustFieldsToValue = (fieldsObject: Fields): Record<string, string> => {
   const adjustedFields: Record<string, string> = {};
 
   for (const fieldName in fieldsObject) {
-    if (fieldName in fieldsObject) {
+    if (fieldsObject.hasOwnProperty(fieldName)) {
       const fieldValue = fieldsObject[fieldName]?.[0] ?? ''; // Using optional chaining and nullish coalescing
       adjustedFields[fieldName] = fieldValue;
     }
   }
   return adjustedFields;
-}
+};
 
-const RenameUploadFile  =  (uploadedfile: any, filename: string): string  => {
+const RenameUploadFile = (uploadedfile: any, filename: string): string => {
   const oldPath = uploadedfile.filepath;
-  const extension = uploadedfile.originalFilename.substring(
-    uploadedfile.originalFilename.lastIndexOf('.')
-  );
+  const extension = uploadedfile.originalFilename.substring(uploadedfile.originalFilename.lastIndexOf('.'));
   const newPath = `.${filename}${extension}`;
   const publicPath = `${process.env.DOMAIN}/${process.env.NODE_ENV}${filename}${extension}`;
   fs.copyFileSync(oldPath, newPath);
   fs.unlinkSync(oldPath);
   return publicPath;
-}
+};
 
-const ProcessUploadImage = async(uploadedfile: any, filename: string): string => {
+const ProcessUploadImage = async (uploadedfile: any, filename: string): Promise<string> => {
   const oldPath = uploadedfile.filepath;
-  const extension = uploadedfile.originalFilename.substring(
-    uploadedfile.originalFilename.lastIndexOf('.')
-  );
+  const extension = uploadedfile.originalFilename.substring(uploadedfile.originalFilename.lastIndexOf('.'));
   const newPath = `.${filename}${extension}`;
 
-
   const image = sharp(oldPath);
-    const metadata = await image.metadata();
+  const metadata = await image.metadata();
 
-    if (metadata.width && metadata.height) {
-      // Calculate new dimensions based on the percentage
-      const newWidth = Math.round(metadata.width * (50 / 100));
-      const newHeight = Math.round(metadata.height * (50 / 100));
+  if (metadata.width && metadata.height) {
+    const newWidth = Math.round(metadata.width * 0.5);
+    const newHeight = Math.round(metadata.height * 0.5);
 
-      // Resize the image
-      await image
-        .resize(newWidth, newHeight)
-        .toFile(newPath);
+    await image.resize(newWidth, newHeight).toFile(newPath);
     const publicPath = `${process.env.DOMAIN}/${process.env.NODE_ENV}${filename}${extension}`;
 
-  fs.unlinkSync(oldPath);
-  return publicPath;
-}
+    // fs.unlink(oldPath, (err) => {
+    //   if (err){console.log(err)}else{
+    //   console.log('deleted');}
+    // });
+    return publicPath;
+  }
 
+  throw new Error('Unable to retrieve image dimensions');
+};
 
-
-
-
-const getUIDfromDate = (prefix = ''): string  => {
+const getUIDfromDate = (prefix = ''): string => {
   const date = new Date();
   const year = date.getFullYear();
-  const month = date.getMonth() + 1; // Months are zero-based
-  const day = date.getDate();
-  const hour = date.getHours();
-  const minute = date.getMinutes();
-  const second = date.getSeconds();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+  const day = date.getDate().toString().padStart(2, '0');
+  const hour = date.getHours().toString().padStart(2, '0');
+  const minute = date.getMinutes().toString().padStart(2, '0');
+  const second = date.getSeconds().toString().padStart(2, '0');
   const random = (Math.floor(Math.random() * 9) + 1).toString();
-  const uniqueNumber =
-    year.toString() +
-    month.toString() +
-    day.toString() +
-    hour.toString() +
-    minute.toString() +
-    second.toString() +
-    random.substring(0, 2);
-  // uniqueNumber = uniqueNumber.substring(uniqueNumber.length - length);
+  const uniqueNumber = `${year}${month}${day}${hour}${minute}${second}${random.substring(0, 2)}`;
 
-  if (prefix !== '') {
-    return prefix + uniqueNumber.toString(); // Append prefix if it is provided
-  }
-  return `IDN${uniqueNumber.toString()}`;
-}
+  return prefix ? prefix + uniqueNumber : `IDN${uniqueNumber}`;
+};
 
 export {
   Authorization,
@@ -203,5 +179,5 @@ export {
   getUIDfromDate,
   SendMail,
   SendMailJS,
-  ProcessUploadImage
-}
+  ProcessUploadImage,
+};

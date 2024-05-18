@@ -13,24 +13,31 @@ const schema = Joi.object({
 });
 
 const schema2 = Joi.object({
-  FirstName: Joi.any().optional(),
-  LastName: Joi.any().optional(),
-  Phone: Joi.string().optional().min(1),
-  Email: Joi.any().optional(),
-  Gender: Joi.any().optional(),
-  Nationality: Joi.any().optional(),
-  State: Joi.any().optional(),
-  City: Joi.any().optional(),
-  Coordinate: Joi.any().optional(),
-  ratings: Joi.any().optional(),
-  BankName: Joi.any().optional(),
-  AccountNumber: Joi.any().optional(),
-  AccountName: Joi.any().optional(),
-  Experience: Joi.any().optional(),
-  Address: Joi.any().optional(),
-  PracticingTenure : Joi.any().optional(),
-  Specialization : Joi.any().optional(),
-});
+    FirstName: Joi.any().optional(),
+    LastName: Joi.any().optional(),
+    Phone: Joi.string().optional().min(1),
+    Email: Joi.any().optional(),
+    Gender: Joi.any().optional(),
+    Nationality: Joi.any().optional(),
+    State: Joi.any().optional(),
+    City: Joi.any().optional(),
+    Coordinate: Joi.any().optional(),
+    Ratings: Joi.any().optional(),
+    BankName: Joi.any().optional(),
+    AccountNumber: Joi.any().optional(),
+    AccountName: Joi.any().optional(),
+    Experience: Joi.any().optional(),
+    PracticingTenure : Joi.any().optional(),
+    Specialization : Joi.any().optional(),
+    Certification: Joi.any().optional(),
+    KycNinName: Joi.any().optional(),
+    KycNinNumber: Joi.any().optional(),
+    KycNinAddress: Joi.any().optional(),
+    KycDob: Joi.any().optional(),
+    KycPostalCode: Joi.any().optional(),
+    KycNicFront: Joi.any().optional(),
+    KycNicBack: Joi.any().optional(),
+  });
 
 // name : Joi.any().optional(); // for optional entry
 
@@ -44,7 +51,7 @@ class doctorsValidation {
     return { result: 'success', message: value };
   }
 
-  static async validateCreateDoctors2(data: any): Promise<any> {
+  static async validateDoctorData(data: any): Promise<any> {
     const { error, value } = schema2.validate(data);
     if (error != null) {
       error.details[0].message = error.details[0].message.replace(/\\|"|\\/g, '');
