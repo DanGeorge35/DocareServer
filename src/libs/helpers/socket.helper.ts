@@ -9,8 +9,7 @@ const setupSocket = (server: HttpServer) => {
     cors: {
       origin: '*',
       methods: ['GET', 'POST']
-    },
-    path:`/${process.env.NODE_ENV}`
+    }
   });
 
   io.use((socket, next) => {
