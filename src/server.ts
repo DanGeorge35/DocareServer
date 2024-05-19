@@ -39,12 +39,12 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Get the home directory of the current user
-
-if (process.env.NODE_ENV === 'development') {
-  app.use(`/${process.env.NODE_ENV}/public`, express.static(path.join(__dirname, '../public')));
-} else {
-  app.use(`/${process.env.NODE_ENV}/public`, express.static(path.join(__dirname, '../public')));
-}
+app.use(express.static(path.join(__dirname, 'public')));
+// if (process.env.NODE_ENV === 'development') {
+//   app.use(`/${process.env.NODE_ENV}/public`, express.static(path.join(__dirname, '../public')));
+// } else {
+//   app.use(`/${process.env.NODE_ENV}/public`, express.static(path.join(__dirname, '../public')));
+// }
 // csurf config
 // const csrfProtection = csrf({ cookie: true });
 // app.use(csrfProtection);
