@@ -1,3 +1,4 @@
+import http from 'http';
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -10,6 +11,9 @@ import helmet from 'helmet';
 import errorHandler from './middleware/error';
 import endpoints from './services/';
 import RouteHelper from './libs/helpers/route.helper';
+import setupSocket from './libs/helpers/socket.helper';
+
+
 
 // const app: express.Application = express();
 const app = express();
@@ -49,10 +53,16 @@ app.use(errorHandler);
 
 // console.log("port", process.env.PORT);
 
+// SOCKET.IO
+const Server =  http.createServer(app);
+const io = setupSocket(Server);
+
+
+
 try {
   RouteHelper.initRoutes(endpoints, app);
 } catch (error) {
   console.error(error);
 }
 
-export default app;
+export default Server;

@@ -1,7 +1,8 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import jwt from 'jsonwebtoken';
-import { Message, User } from './models';
+import Message  from '../../models/messages.model';
+import AuthUser  from '../../models/auths.model';
 
 const setupSocket = (server: HttpServer) => {
   const io = new Server(server, {
@@ -15,12 +16,13 @@ const setupSocket = (server: HttpServer) => {
     const token = socket.handshake.auth.token;
 
     if (!token) {
+      console.log("Authentication error")
       return next(new Error('Authentication error'));
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-      socket.data.user = decoded;
+      const decoded :any= jwt.verify(token, process.env.jwtkey!);
+      socket.data.user = decoded.data;
       next();
     } catch (error) {
       next(new Error('Authentication error'));
@@ -28,42 +30,50 @@ const setupSocket = (server: HttpServer) => {
   });
 
   io.on('connection', async (socket) => {
-    console.log(`User connected: ${socket.data.user.username}`);
+    console.log(`User connected: ${socket.data.user.FirstName}  ${socket.data.user.LastName}`);
 
     // Join a room based on user ID
-    socket.join(`user-${socket.data.user.id}`);
+    socket.join(`user-${socket.data.user.UserID}`);
 
-    socket.on('directMessage', async ({ content, toUserId }) => {
+    socket.emit('userConnected', {
+          name: `${socket.data.user.FirstName}  ${socket.data.user.LastName}`,
+          UserID: socket.data.user.UserID
+    });
+
+
+    socket.on('directMessage', async ({ content, toUserID }) => {
       const message = await Message.create({
         content,
-        fromUserId: socket.data.user.id,
-        toUserId,
+        fromUserID: socket.data.user.UserID,
+        toUserID,
       });
 
-      const fromUser = await User.findByPk(socket.data.user.id);
-      const toUser = await User.findByPk(toUserId);
+      const fromUser:any = await AuthUser.findOne({where : {"UserID": socket.data.user.Account.id}});
+      const toUser:any  = await AuthUser.findOne({where : {"UserID": toUserID}});
+
+
 
       if (toUser) {
-        io.to(`user-${toUserId}`).emit('directMessage', {
-          fromUser: fromUser!.username,
+        io.to(`user-${toUserID}`).emit('directMessage', {
+          fromUser: `${fromUser!.FirstName} ${fromUser!.LastName}`,
           content: message.content,
           createdAt: message.createdAt,
         });
       }
     });
 
+    socket.on('signal', ({ toUserID, signalData }) => {
+      console.log(`Sending signal to ${toUserID}`);
 
-
-    socket.on('signal', ({ toUserId, signalData }) => {
-      io.to(`user-${toUserId}`).emit('signal', {
-        fromUserId: socket.data.user.id,
+      io.to(`user-${toUserID}`).emit('signal', {
+        fromUserID: socket.data.user.UserID,
         signalData,
       });
     });
 
 
     socket.on('disconnect', () => {
-      console.log(`User disconnected: ${socket.data.user.username}`);
+      console.log(`User disconnected: ${socket.data.user.FirstName}  ${socket.data.user.LastName}`);
     });
   });
 
