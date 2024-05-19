@@ -80,7 +80,7 @@ Thank you for expressing interest in investing with Cadence. We are thrilled to 
 
 Your investment journey with Cadence starts now! To complete your investment and unlock exclusive benefits as a Cadence doctor,
 <br> please proceed to your account verification  with the link below : <br>
- Link : <a href="https://cadencepub.com/${process.env.NODE_ENV}/api/v1/doctors/verify/${data.Email}/${DID}?">https://cadencepub.com/${process.env.NODE_ENV}/api/v1/doctors/verify/${data.Email}/${DID}?</a><br><br>
+ Link : <a href="https://cadencepub.com/api/v1/doctors/verify/${data.Email}/${DID}?">https://cadencepub.com/api/v1/doctors/verify/${data.Email}/${DID}?</a><br><br>
 
 
 <b>Here's what you can expect from your Cadence investment:</b><br>

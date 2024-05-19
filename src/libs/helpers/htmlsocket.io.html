@@ -41,7 +41,7 @@
                 socket.disconnect();
             }
 
-            socket = io('https://docare.posaccountant.com/', {
+            socket = io('https://docare.posaccountant.com', {
                 auth: {
                     token,
                 },
@@ -95,8 +95,6 @@
 
         function setToken(tk) {
             token = tk;
-
-
             connectSocket();
         }
 

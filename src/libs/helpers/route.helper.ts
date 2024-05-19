@@ -20,12 +20,12 @@ class RouteHelper {
   static initRoutes(routes: any[], router: Router): any {
     for (const route of routes) {
       const { method, path, handler } = route;
-      (router as any)[method](`/${process.env.NODE_ENV}${path}`, handler);
+      (router as any)[method](`${path}`, handler);
     }
-    router.get(`/${process.env.NODE_ENV}`, (req: any, res: any) => {
+    router.get(`/`, (req: any, res: any) => {
       res.setHeader('content-type', 'application/json');
       const report = {
-        message: 'You are welcome to Cadence',
+        message: 'You are welcome to Docare',
         code: 201
       };
       res.status(201).send(report);
