@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div id="chat">
+        <ul id="messages"></ul>
+        <input id="toUserId" placeholder="Recipient User ID" autocomplete="off" />
+        <input id="messageInput" placeholder="Type your message here..." autocomplete="off" />
+        <button onclick="sendMessage()">Send</button>
+        <button onclick="startCall()">Start Call</button>
+        <button onclick="startVideoCall()">Start Video Call</button>
+        <div id="localVideoContainer">
+            <video id="localVideo" autoplay muted></video>
+        </div>
+        <div id="remoteVideoContainer">
+            <video id="remoteVideo" autoplay></video>
+        </div>
+    </div>
+
+    <script>
+        const token = 'YOUR_JWT_TOKEN';
+
+        async function fetchMessages() {
+            const response = await fetch('http://localhost:3000/api/messages', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            const messages = await response.json();
+            const messageList = document.getElementById('messages');
+            messageList.innerHTML = '';
+            messages.forEach(msg => {
+                const li = document.createElement('li');
+                li.textContent = `${msg.fromUser} to ${msg.toUser}: ${msg.content} (${new Date(msg.createdAt).toLocaleTimeString()})`;
+                messageList.appendChild(li);
+            });
+        }
+
+        const socket = io('http://localhost:3000', {
+            auth: {
+                token,
+            },
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            fetchMessages();
+        });
+
+        socket.on('directMessage', (data) => {
+            const messageList = document.getElementById('messages');
+            const li = document.createElement('li');
+            li.textContent = `${data.fromUser} to ${data.toUser}: ${data.content} (${new Date(data.createdAt).toLocaleTimeString()})`;
+            messageList.appendChild(li);
+        });
+
+        socket.on('signal', async (data) => {
+            if (data.fromUserId !== userId) {
+                const peerConnection = createPeerConnection(data.fromUserId);
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.signalData));
+                if (data.signalData.type === 'offer') {
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    socket.emit('signal', { toUserId: data.fromUserId, signalData: peerConnection.localDescription });
+                }
+            }
+        });
+
+        function sendMessage() {
+            const toUserId = document.getElementById('toUserId').value;
+            const input = document.getElementById('messageInput');
+            const content = input.value;
+
+            if (toUserId && content) {
+                socket.emit('directMessage', { content, toUserId });
+                input.value = '';
+                document.getElementById('toUserId').value = '';
+            } else {
+                alert('Please enter a recipient User ID and a message.');
+            }
+        }
+
+        let localStream;
+        const peerConnections = {};
+
+        async function startCall() {
+            const toUserId = document.getElementById('toUserId').value;
+            if (!toUserId) {
+                alert('Please enter a recipient User ID.');
+                return;
+            }
+
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            const localVideo = document.getElementById('localVideo');
+            localVideo.srcObject = localStream;
+
+            const peerConnection = createPeerConnection(toUserId);
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            socket.emit('signal', { toUserId, signalData: offer });
+        }
+
+        async function startVideoCall() {
+            const toUserId = document.getElementById('toUserId').value;
+            if (!toUserId) {
+                alert('Please enter a recipient User ID.');
+                return;
+            }
+
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+            const localVideo = document.getElementById('localVideo');
+            localVideo.srcObject = localStream;
+
+            const peerConnection = createPeerConnection(toUserId);
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            socket.emit('signal', { toUserId, signalData: offer });
+        }
+
+        function createPeerConnection(toUserId) {
+            const peerConnection = new RTCPeerConnection();
+
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit('signal', { toUserId, signalData: event.candidate });
+                }
+            };
+
+            peerConnection.ontrack = (event) => {
+                const remoteVideo = document.getElementById('remoteVideo');
+                remoteVideo.srcObject = event.streams[0];
+            };
+
+            peerConnections[toUserId] = peerConnection;
+            return peerConnection;
+        }
+    </script>
+</body>
+
+</html>
