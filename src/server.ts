@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Get the home directory of the current user
-app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.use(errorHandler);
 
