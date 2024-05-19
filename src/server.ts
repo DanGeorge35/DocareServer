@@ -2,9 +2,6 @@ import http from 'http';
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
-// import os from 'os'
-// import csrf from 'csurf'
-// import cookieParser from 'cookie-parser'
 import morgan from 'morgan';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -13,15 +10,11 @@ import endpoints from './services/';
 import RouteHelper from './libs/helpers/route.helper';
 import setupSocket from './libs/helpers/socket.helper';
 
-
-
-// const app: express.Application = express();
 const app = express();
-
+const Server =  http.createServer(app);
+const io = setupSocket(Server);
 dotenv.config();
 
-// MiddleWare
-// const allowedOrigins = ['*']
 
 const corsOptions = {
   origin: '*',
@@ -40,22 +33,12 @@ if (process.env.NODE_ENV === 'development') {
 
 // Get the home directory of the current user
 app.use(express.static(path.join(__dirname, 'public')));
-// if (process.env.NODE_ENV === 'development') {
-//   app.use(`/${process.env.NODE_ENV}/public`, express.static(path.join(__dirname, '../public')));
-// } else {
-//   app.use(`/${process.env.NODE_ENV}/public`, express.static(path.join(__dirname, '../public')));
-// }
-// csurf config
-// const csrfProtection = csrf({ cookie: true });
-// app.use(csrfProtection);
 
 app.use(errorHandler);
 
-// console.log("port", process.env.PORT);
 
 // SOCKET.IO
-const Server =  http.createServer(app);
-const io = setupSocket(Server);
+
 
 
 

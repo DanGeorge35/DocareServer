@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
-    <script src="https://docare.posaccountant.com/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -41,7 +41,7 @@
                 socket.disconnect();
             }
 
-            socket = io('http://localhost:5000', {
+            socket = io('https://docare.posaccountant.com/', {
                 auth: {
                     token,
                 },
