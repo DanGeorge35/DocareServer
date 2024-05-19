@@ -32,9 +32,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 
-app.get('/main/socket.io/socket.io.js', (req, res) => {
-  res.sendFile(__dirname + '/node_modules/socket.io/client-dist/socket.io.js');
-});
 
 
 // Get the home directory of the current user
