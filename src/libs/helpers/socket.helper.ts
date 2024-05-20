@@ -81,3 +81,9 @@ const setupSocket = (server: HttpServer) => {
 };
 
 export default setupSocket;
+/*
+Options -MultiViews
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.html [QSA,L]
+*/
