@@ -7,7 +7,7 @@
     "start": "node ./dist/docare.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
-    "build": "tsc",
+    "build": "tsc && copy index.html dist",
     "watch": "tsc && nodemon ./dist/docare.js",
     "debug": "ts-node ./src/docare.ts",
     "lint": "eslint . --fix",
