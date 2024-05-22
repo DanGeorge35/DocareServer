@@ -29,6 +29,7 @@ class RouteHelper {
         code: 201
       };
       res.status(201).send(report);
+      res.end()
     });
   }
 
