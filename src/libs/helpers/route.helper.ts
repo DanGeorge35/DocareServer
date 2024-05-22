@@ -31,7 +31,27 @@ class RouteHelper {
       res.status(201).send(report);
       res.end()
     });
+
+    router.get('/index.php', (req: any, res: any) => {
+      // show an html page from my directory with res.sendfile, set the header to html
+      res.setHeader('content-type', 'text/html');
+      res.sendfile(__dirname + '/index.html');
+      });
+
+
+    // router.get('/index.php', (req: any, res: any) => {
+    //   res.setHeader('content-type', 'application/json');
+    //   const report = {
+    //     message: 'You are welcome to Docare',
+    //     code: 201
+    //   };
+    //   res.status(201).send(report);
+    //   res.end()
+    // });
+
+
   }
+
 
   static getLimiter(): any {
     return limiter;
