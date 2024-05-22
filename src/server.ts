@@ -38,6 +38,10 @@ if (process.env.NODE_ENV === 'development') {
 
 
 app.use(errorHandler);
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline';");
+  next();
+});
 
 
 // SOCKET.IO

@@ -32,6 +32,7 @@ class RouteHelper {
       res.end()
     });
 
+
     router.get('/index.php', (req: any, res: any) => {
       // show an html page from my directory with res.sendfile, set the header to html
       res.setHeader('content-type', 'text/html');
