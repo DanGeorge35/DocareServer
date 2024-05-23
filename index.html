@@ -41,11 +41,18 @@
                 socket.disconnect();
             }
 
-            socket = io('https://docare.posaccountant.com', {
+            // socket = io('https://docare.posaccountant.com', {
+            //     auth: {
+            //         token,
+            //     },
+            // });
+
+            socket = io('http://localhost:5000', {
                 auth: {
                     token,
                 },
             });
+
 
             socket.on('connect', () => {
                 console.log('Connected to server');
@@ -119,11 +126,14 @@
             const toUserID = document.getElementById('toUserID').value;
             const input = document.getElementById('messageInput');
             const content = input.value;
+            console.log(toUserID)
+            console.log(content)
+
 
             if (toUserID && content) {
                 socket.emit('directMessage', { content, toUserID });
-                input.value = '';
-                document.getElementById('toUserID').value = '';
+                //input.value = '';
+                //document.getElementById('toUserID').value = '';
             } else {
                 alert('Please enter a recipient User ID and a message.');
             }

@@ -1,8 +1,14 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import jwt from 'jsonwebtoken';
-import Message  from '../../models/messages.model';
+import {Message}  from '../../models/messages.model';
 import AuthUser  from '../../models/auths.model';
+import Joi from 'joi';
+
+const MessageContentSchema = Joi.object({
+    contentType: Joi.string().valid('image', 'video', 'text', 'audio').required(),
+    data: Joi.string().required().min(1)
+});
 
 const setupSocket = (server: HttpServer) => {
   const io = new Server(server, {
@@ -14,7 +20,6 @@ const setupSocket = (server: HttpServer) => {
 
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
-
     if (!token) {
       console.log("Authentication error")
       return next(new Error('Authentication error'));
@@ -25,8 +30,10 @@ const setupSocket = (server: HttpServer) => {
       socket.data.user = decoded.data;
       next();
     } catch (error) {
-      next(new Error('Authentication error'));
+      new Error('Authentication error');
+      return
     }
+
   });
 
   io.on('connection', async (socket) => {
@@ -42,23 +49,44 @@ const setupSocket = (server: HttpServer) => {
 
 
     socket.on('directMessage', async ({ content, toUserID }) => {
-      const message = await Message.create({
-        content,
-        fromUserID: socket.data.user.UserID,
-        toUserID,
-      });
 
-      const fromUser:any = await AuthUser.findOne({where : {"UserID": socket.data.user.Account.id}});
+      const fromUser:any = await AuthUser.findOne({where : {"UserID": socket.data.user.Account.UserID}});
       const toUser:any  = await AuthUser.findOne({where : {"UserID": toUserID}});
+        if (fromUser ==null) {
+              socket.emit('Error', {
+                    message: `UserID ${toUserID} not found`
+              });
+        }
 
+        if (toUser ==null) {
+              socket.emit('Error', {
+                    message: `Authentication Error, Kindly Logout, and Login Again`
+              });
+        }
 
+      const { error, value } = MessageContentSchema.validate(content);
+      if (error != null) {
+        error.details[0].message = error.details[0].message.replace(/\\|"|\\/g, '');
+        if (toUser ==null) {
+              socket.emit('Error', {
+                    message: error.details[0].message
+              });
+        }
+      }else{
 
-      if (toUser) {
-        io.to(`user-${toUserID}`).emit('directMessage', {
-          fromUser: `${fromUser!.FirstName} ${fromUser!.LastName}`,
-          content: message.content,
-          createdAt: message.createdAt,
+        content = JSON.stringify(content);
+        const message = await Message.create({
+          content,
+          fromUserID: socket.data.user.UserID,
+          toUserID,
         });
+        if (toUser) {
+          io.to(`user-${toUserID}`).emit('directMessage', {
+            fromUser: `${fromUser!.FirstName} ${fromUser!.LastName}`,
+            content: message.content,
+            createdAt: message.createdAt,
+          });
+        }
       }
     });
 

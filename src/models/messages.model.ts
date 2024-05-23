@@ -48,4 +48,13 @@ Message.init(
 );
 
 
-export default Message;
+Message.sync({alter:true})
+	.then(() => {})
+	.catch((err: Error) => {
+		console.error("Error creating Event table:", err)
+	})
+
+
+
+
+export { Message, MessageCreationAttributes, MessageAttributes }
