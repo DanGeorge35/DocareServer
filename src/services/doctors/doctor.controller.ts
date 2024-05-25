@@ -71,37 +71,25 @@ class DoctorsController {
 
       dDoctors.dataValues.account = daccount;
       // send mail
-      const templateParams = {
+      const mail = {
+        to_email: data.Email,
         to_name: data.FirstName,
-        reply_to: 'contact@cadencepub.com',
-        subject: 'Welcome to Cadence Investment Platform!',
+        subject: 'Welcome to DOCARE Health Support!',
         message: `
-Thank you for expressing interest in investing with Cadence. We are thrilled to have you on board as a potential doctor in our exciting venture.<br>
-
-Your investment journey with Cadence starts now! To complete your investment and unlock exclusive benefits as a Cadence doctor,
-<br> please proceed to your account verification  with the link below : <br>
- Link : <a href="https://cadencepub.com/api/v1/doctors/verify/${data.Email}/${DID}?">https://cadencepub.com/api/v1/doctors/verify/${data.Email}/${DID}?</a><br><br>
-
-
-<b>Here's what you can expect from your Cadence investment:</b><br>
-  <span style="margin-left:20px"><span>  🔹Access to detailed investment information and updates.<br>
-
-  <span style="margin-left:20px"><span>   🔹Regular updates on Cadence's progress and performance.<br>
-
-  <span style="margin-left:20px"><span>   🔹Opportunities to participate in exclusive doctor events and activities.<br>
-
-  <span style="margin-left:20px"><span>   🔹Potential for attractive returns on your investment.<br><br>
-
-Thank you for choosing to invest with Cadence. <br>We look forward to a successful partnership and sharing our journey to success with you.<br>
-<br>
-Best regards,<br><br>
+Thank you for expressing interest In Docare. We are thrilled to have you on board as a potential doctor in our exciting platform.<br>
+<br> please proceed to your account verification  with the OTP below : <br>
+ <br><h4>${DID}</h4>
 
 <br>
-`,
-        to_email: data.Email
+Thank you for choosing DOCARE. <br>We look forward to your successful onboarding<br>
+<br>
+Best regards,<br>
+DOCARE SUPPORT
+<br>
+`
       };
       res.status(201).json({ success: true, data: dDoctors });
-      //  await SendMail(templateParams)
+       await SendMail(mail)
     } catch (error: any) {
       return res.status(400).send({
         message: error.message,
