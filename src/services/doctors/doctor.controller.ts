@@ -25,8 +25,34 @@ import Systems from '../../models/systems.model';
 import sequelize from '../../config/db';
 import { QueryTypes } from 'sequelize';
 import { Certificate } from 'crypto';
+import { createErrorResponse, createSuccessResponse, IResponse, sendResponse } from '../../libs/helpers/response.helper';
 
 class DoctorsController {
+
+    static async SendVerifyToken(data:any,token:number): Promise<any> {
+            // send mail
+      const mail = {
+        to_email: data.Email,
+        to_name: data.FirstName,
+        subject: 'Welcome to DOCARE Health Support!',
+        message: `
+Thank you for expressing interest In Docare. We are thrilled to have you on board as a potential doctor in our exciting platform.<br>
+<br> please proceed to your account verification  with the OTP below :
+ <br><br><b style='font-size: 30px;font-weight: 700;padding: 15px 35px;display: inline-block;background-color: #d6ecff;border-radius: 10px;'>${token}</b>
+<br>
+<br>
+Thank you for choosing DOCARE. <br>We look forward to your successful onboarding<br>
+<br>
+Best regards,<br>
+DOCARE SUPPORT
+<br>
+`
+      };
+
+       await SendMail(mail)
+
+    }
+
   static async createDoctors(req: any, res: any): Promise<any> {
     try {
       const data = req.body;
@@ -39,12 +65,21 @@ class DoctorsController {
         return res.status(result.code).send(result);
       }
 
-      const checkExist = await Doctors.findOne({ where: { Email: data.Email } });
-      if (checkExist !== null) {
+      const accountExist = await Auth.findOne({ where: { Email: data.Email } });
+      if (accountExist !== null) {
+
+        if(accountExist.dataValues.Verified == 0){
+          const token = generateOTP()
+          await this.SendVerifyToken(data,token)
+            const successResponse: IResponse = createErrorResponse(400, 'Kindly check your mail for Verification Code')(token)
+            sendResponse(res, successResponse)
+            return res.end()
+        }else{
         return res.status(400).send({
           message: 'Account Already Exist',
           code: 400
         });
+      }
       }
 
       const DID = getUIDfromDate('DOC');
@@ -70,26 +105,11 @@ class DoctorsController {
       const dDoctors = await Doctors.create({ ...data });
 
       dDoctors.dataValues.account = daccount;
-      // send mail
-      const mail = {
-        to_email: data.Email,
-        to_name: data.FirstName,
-        subject: 'Welcome to DOCARE Health Support!',
-        message: `
-Thank you for expressing interest In Docare. We are thrilled to have you on board as a potential doctor in our exciting platform.<br>
-<br> please proceed to your account verification  with the OTP below :
- <br><br><b style='font-size: 30px;font-weight: 700;padding: 15px 35px;display: inline-block;background-color: #d6ecff;border-radius: 10px;'>${token}</b>
-<br>
-<br>
-Thank you for choosing DOCARE. <br>We look forward to your successful onboarding<br>
-<br>
-Best regards,<br>
-DOCARE SUPPORT
-<br>
-`
-      };
-      res.status(201).json({ success: true, data: dDoctors });
-       await SendMail(mail)
+      // res.status(201).json({ success: true, data: dDoctors });
+        const successResponse: IResponse = createSuccessResponse(dDoctors,400, 'Account Successfully Created')
+        sendResponse(res, successResponse)
+      await this.SendVerifyToken(data,token)
+       res.end()
     } catch (error: any) {
       return res.status(400).send({
         message: error.message,
