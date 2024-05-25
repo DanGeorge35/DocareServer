@@ -27,9 +27,7 @@ import { QueryTypes } from 'sequelize';
 import { Certificate } from 'crypto';
 import { createErrorResponse, createSuccessResponse, IResponse, sendResponse } from '../../libs/helpers/response.helper';
 
-class DoctorsController {
-
-    static async SendVerifyToken(data:any,token:number): Promise<any> {
+    const SendVerifyToken = async (data:any,token:number) => {
             // send mail
       const mail = {
         to_email: data.Email,
@@ -53,6 +51,10 @@ DOCARE SUPPORT
 
     }
 
+
+class DoctorsController {
+
+
   static async createDoctors(req: any, res: any): Promise<any> {
     try {
       const data = req.body;
@@ -70,8 +72,8 @@ DOCARE SUPPORT
 
         if(accountExist.dataValues.Verified == 0){
           const token = generateOTP()
-          await this.SendVerifyToken(data,token)
-            const successResponse: IResponse = createErrorResponse(400, 'Kindly check your mail for Verification Code')(token)
+          await SendVerifyToken(data,token)
+            const successResponse: IResponse = createErrorResponse(205, 'Kindly check your mail for Verification Code')(token)
             sendResponse(res, successResponse)
             return res.end()
         }else{
@@ -105,10 +107,9 @@ DOCARE SUPPORT
       const dDoctors = await Doctors.create({ ...data });
 
       dDoctors.dataValues.account = daccount;
-      // res.status(201).json({ success: true, data: dDoctors });
-        const successResponse: IResponse = createSuccessResponse(dDoctors,400, 'Account Successfully Created')
-        sendResponse(res, successResponse)
-      await this.SendVerifyToken(data,token)
+            const successResponse: IResponse = createSuccessResponse(dDoctors,201, 'Account Successfully Created')
+      await SendVerifyToken(data,token)
+      sendResponse(res, successResponse)
        res.end()
     } catch (error: any) {
       return res.status(400).send({
