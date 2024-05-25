@@ -167,6 +167,15 @@ const getUIDfromDate = (prefix = ''): string => {
   return prefix ? prefix + uniqueNumber : `IDN${uniqueNumber}`;
 };
 
+
+function generateOTP() {
+  const min = 100000;
+  const max = 999999;
+  // Generate a random value between min and max (inclusive)
+  const otp = Math.floor(Math.random() * (max - min + 1)) + min;
+  return otp;
+}
+
 export {
   Authorization,
   GenerateToken,
@@ -178,4 +187,5 @@ export {
   SendMail,
   SendMailJS,
   ProcessUploadImage,
+  generateOTP
 };

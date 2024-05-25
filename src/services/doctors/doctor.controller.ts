@@ -7,7 +7,7 @@ import fs from 'fs'
 import {
   getUIDfromDate,
   EncryptPassword,
-  GenerateToken,
+  generateOTP,
   CheckPassword,
   SendMail
 } from '../../libs/utils/app.utility';
@@ -51,7 +51,7 @@ class DoctorsController {
       data.UserID = DID;
       data.UserType = 'doctor';
       const dpaswprd = data.Password ?? DID;
-
+      const token = generateOTP()
       const account: any = {};
       account.UserID = data.UserID;
       account.FirstName = data.FirstName;
@@ -61,7 +61,7 @@ class DoctorsController {
       account.UserType = 'doctor';
       account.PasswordHash = await EncryptPassword(dpaswprd);
       account.RefreshToken = account.PasswordHash;
-      account.Token = DID;
+      account.Token = token;
       account.Verified = '0';
       account.Status = 'Pending';
 
@@ -77,9 +77,9 @@ class DoctorsController {
         subject: 'Welcome to DOCARE Health Support!',
         message: `
 Thank you for expressing interest In Docare. We are thrilled to have you on board as a potential doctor in our exciting platform.<br>
-<br> please proceed to your account verification  with the OTP below : <br>
- <br><h4>${DID}</h4>
-
+<br> please proceed to your account verification  with the OTP below :
+ <br><br><b style='font-size: 30px;font-weight: 700;padding: 15px 35px;display: inline-block;background-color: #d6ecff;border-radius: 10px;'>${token}</b>
+<br>
 <br>
 Thank you for choosing DOCARE. <br>We look forward to your successful onboarding<br>
 <br>
