@@ -78,22 +78,20 @@ const SendMail = async (mail: { to_email: string; to_name: string; subject: stri
   });
 
   const htmlMessage = `
-  <div style="background-color: black;">
-    <div style="background-color:black;padding:10px;text-align:center">
-      <img src="https://cadencepub.com/logo.png" alt="Cadence" width="143" height="60">
+<div style="background-color: #479eff;">
+    <div style="background-color:#479eff;;text-align:center;padding:20px">
+      <img src="https://posaccountant.com/docare-logoblue.jpg" alt="Cadence"  height="70">
     </div>
-    <div style="background-color:white;font-size:15px; padding: 25px; border: 3px solid;">
-       Dear ${mail.to_name},<br><br>
+    <div style="background-color:white;font-size:18px; padding: 50px 35px; color:#55585b; ">
+       <b>Dear ${mail.to_name},<br><br><br>
       ${mail.message}
+      </b>
       <br>
       <div>
-    <div style="text-align: center; background-color: black;color:yellow;padding:5px;font-size:15px">
-      <b>Cadence:</b> Dine in Style, Sip with harmony
-    </div>
   </div>`;
 
   const mailOptions = {
-    from: '"Cadence" <contact@cadencepub.com>',
+    from: '"DOCARE" <docare@posaccountant.com>',
     to: mail.to_email,
     subject: mail.subject,
     html: htmlMessage,
