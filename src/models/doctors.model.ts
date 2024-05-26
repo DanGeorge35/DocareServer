@@ -117,12 +117,7 @@ const Doctors = sequelize.define(
     KycNicBack: {
       type: DataTypes.STRING,
       allowNull: true
-    },
-    Status: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue:"Pending"
-    },
+    }
   },
   {}
 );

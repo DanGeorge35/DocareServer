@@ -176,7 +176,54 @@ function generateOTP() {
   return otp;
 }
 
+    const SendVerifyToken = async (data:any,token:number) => {
+            // send mail
+      const mail = {
+        to_email: data.Email,
+        to_name: data.FirstName,
+        subject: 'Welcome to DOCARE Health Support!',
+        message: `
+Thank you for expressing interest In Docare. We are thrilled to have you on board as a potential doctor in our exciting platform.<br>
+<br> please proceed to your account verification  with the OTP below :
+ <br><br><b style='font-size: 30px;font-weight: 700;padding: 15px 35px;display: inline-block;background-color: #d6ecff;border-radius: 10px;'>${token}</b>
+<br>
+<br>
+Thank you for choosing DOCARE. <br>We look forward to your successful onboarding<br>
+<br>
+Best regards,<br>
+DOCARE SUPPORT
+<br>
+`
+      };
+
+       await SendMail(mail)
+
+    }
+
+
+
+  const SendAccountVerified = async (data:any) => {
+            // send mail
+      const mail = {
+        to_email: data.Email,
+        to_name: data.FirstName,
+        subject: 'DOCARE >> Email Successfully Verified!',
+        message: `
+Email is successfully verified. You can login now!<br><br>
+Best regards,<br>
+DOCARE SUPPORT
+<br>
+`
+      };
+
+       await SendMail(mail)
+
+    }
+
+
 export {
+  SendAccountVerified,
+  SendVerifyToken,
   Authorization,
   GenerateToken,
   EncryptPassword,

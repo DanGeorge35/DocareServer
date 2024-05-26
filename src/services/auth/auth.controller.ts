@@ -8,12 +8,15 @@ import {
   EncryptPassword,
   GenerateToken,
   CheckPassword,
-  SendMail
+  SendMail,
+  SendVerifyToken,
+  SendAccountVerified
 } from '../../libs/utils/app.utility';
 // import AuthenticationValidation from './authentication.validation'
 import Admin from '../../models/admin.model';
 import Doctor from '../../models/doctors.model';
 import Patient from '../../models/patients.model';
+import { createErrorResponse, createSuccessResponse, IResponse, sendResponse } from '../../libs/helpers/response.helper';
 
 class AuthenticationController {
   static async userData(email: string): Promise<any> {
@@ -129,11 +132,46 @@ class AuthenticationController {
     }
   }
 
+
+
+    static async verifyaccountotp(req: any, res: any): Promise<any> {
+    try {
+      const { email, token } = req.body;
+
+      let authdata: any = await Auths.findOne({ where: { Email: email} });
+
+      if (authdata === null) {
+        const errorResponse: IResponse = createErrorResponse(404, 'Account Not Found')()
+        sendResponse(res, errorResponse)
+        return res.end();
+      }
+
+      if (authdata.dataValues.Token !== token) {
+        const errorResponse: IResponse = createErrorResponse(404, 'Invalid Token')()
+        sendResponse(res, errorResponse)
+        return res.end();
+      }
+
+
+      authdata = await authdata.update({ Verified: '1',"Status": "Pending" });
+
+      // return response as html text
+
+      await SendAccountVerified({FirstName:authdata.FirstName, Email: authdata.Email})
+      const successResponse: IResponse = createSuccessResponse(authdata, 201, 'Account Successfully Verified')
+      sendResponse(res, successResponse)
+      return res.end();
+    } catch (error: any) {
+        const errorResponse: IResponse = createErrorResponse(400, `SYSTEM ERROR : ${error.message}`)()
+        sendResponse(res, errorResponse)
+        return res.end();
+    }
+  }
   static async verifyaccount(req: any, res: any): Promise<any> {
     try {
       const { email, token } = req.params;
 
-      const authdata: any = await Auths.findOne({ where: { Email: email, token } });
+      const authdata: any = await Auths.findOne({ where: { Email: email, Token: token } });
 
       if (authdata === null) {
         return res.status(404).send('Page not found');
@@ -144,13 +182,13 @@ class AuthenticationController {
       res.setHeader('Content-Type', 'text/html');
       res.write(`
           <h3>Your account has been verified successfully</h3><br/>
-          Please click on this <a href="https://front-end-staging-two.vercel.app/hospital/login">link to login.</a>
+          Please click on this <a href="${process.env.DOMAIN}/login">link to login.</a>
         `);
       await SendMail({
         subject: 'Email Successfully Verified',
         to_name: `${authdata.firstName}`,
         message: `Email is successfully verified. You can login now!
-         \n\n Kind Regards,\nTurgl Team`,
+         \n\n Kind Regards,\nSupport Team`,
         to_email: authdata.email
       });
       return res.end();

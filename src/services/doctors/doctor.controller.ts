@@ -18,7 +18,8 @@ import DoctorsValidation from './doctors.validation';
 import { IncomingForm, type Fields } from 'formidable'
 import {
   ProcessUploadImage,
-  adjustFieldsToValue
+  adjustFieldsToValue,
+  SendVerifyToken
 } from '../../libs/utils/app.utility'
 // import Investments from '../../models/history.model'
 import Systems from '../../models/systems.model';
@@ -27,29 +28,7 @@ import { QueryTypes } from 'sequelize';
 import { Certificate } from 'crypto';
 import { createErrorResponse, createSuccessResponse, IResponse, sendResponse } from '../../libs/helpers/response.helper';
 
-    const SendVerifyToken = async (data:any,token:number) => {
-            // send mail
-      const mail = {
-        to_email: data.Email,
-        to_name: data.FirstName,
-        subject: 'Welcome to DOCARE Health Support!',
-        message: `
-Thank you for expressing interest In Docare. We are thrilled to have you on board as a potential doctor in our exciting platform.<br>
-<br> please proceed to your account verification  with the OTP below :
- <br><br><b style='font-size: 30px;font-weight: 700;padding: 15px 35px;display: inline-block;background-color: #d6ecff;border-radius: 10px;'>${token}</b>
-<br>
-<br>
-Thank you for choosing DOCARE. <br>We look forward to your successful onboarding<br>
-<br>
-Best regards,<br>
-DOCARE SUPPORT
-<br>
-`
-      };
 
-       await SendMail(mail)
-
-    }
 
 
 class DoctorsController {

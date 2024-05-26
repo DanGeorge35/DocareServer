@@ -4,9 +4,14 @@ import { Authorization } from '../../libs/utils/app.utility';
 const ENDPOINT_URL = '/api/v1/auth';
 const AuthEndpoint = [
   {
-    path: '/verify/account/:email/:token',
+    path: `${ENDPOINT_URL}/verify/:email/:token`,
     method: 'get',
     handler: [AuthController.verifyaccount]
+  },
+  {
+    path: `${ENDPOINT_URL}/verify`,
+    method: 'post',
+    handler: [AuthController.verifyaccountotp]
   },
   {
     path: `${ENDPOINT_URL}/changepassword`,
