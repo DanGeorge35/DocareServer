@@ -122,7 +122,7 @@ class AuthenticationController {
       delete user.dataValues.Account.dataValues.PasswordHash;
       delete user.dataValues.Account.dataValues.RefreshToken;
       delete user.dataValues.Account.dataValues.Token;
-      return res.status(200).json({ success: true, data: user, token });
+      return res.status(200).json({ success: true, data: user, token, message:"Successfully Login"});
     } catch (error: any) {
       const result: any = {
         message: 'Error login in: ' + error.message,
@@ -200,29 +200,23 @@ class AuthenticationController {
     try {
       const data: any = req.body;
       if (!data.email) {
-        const result: any = {
-          success: false,
-          code: 400,
-          message: 'Invalid Entry: Email can not be empty'
-        };
-        return res.status(result.code).send(result);
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: Email can not be empty')()
+        sendResponse(res, errorResponse)
+        return res.end();
       }
 
       const account: any = await Auths.findOne({ where: { Email: data.email } });
       if (!account) {
-        const result: any = {
-          success: false,
-          message: 'account not found!',
-          code: 400
-        };
-        return res.status(result.code).json(result);
+        const errorResponse: IResponse = createErrorResponse(400, 'Account not found!')()
+        sendResponse(res, errorResponse)
+        return res.end();
       }
 
       const restToken = getUIDfromDate('RST');
       await account.update({ Token: restToken });
       res
         .status(200)
-        .json({ success: true, message: 'Your account reset code has been sent to your email!' });
+        .json({ success: true,code:200, message: 'Your account reset code has been sent to your email!' });
       await SendMail({
         subject: 'Pasword Reset Code',
         to_name: `${account.dataValues.firstName}`,
@@ -234,12 +228,9 @@ class AuthenticationController {
       });
       return res.end();
     } catch (error: any) {
-      const result: any = {
-        success: false,
-        message: 'System Error:' + error,
-        code: 400
-      };
-      return res.status(result.code).json(result);
+        const errorResponse: IResponse = createErrorResponse(400,  'SYSTEM ERROR :' + error,)()
+        sendResponse(res, errorResponse)
+        return res.end();
     }
   }
 
@@ -247,47 +238,32 @@ class AuthenticationController {
     try {
       const data: any = req.body;
       if (!data.email) {
-        const result: any = {
-          success: false,
-          code: 400,
-          message: 'Invalid Entry: Email can not be empty'
-        };
-        return res.status(result.code).send(result);
+        const errorResponse: IResponse = createErrorResponse(400,  'Invalid Entry: Email can not be empty')()
+        sendResponse(res, errorResponse)
+        return res.end();
       }
       if (!data.resetcode) {
-        const result: any = {
-          success: false,
-          code: 400,
-          message: 'Invalid Entry: reset code can not be empty'
-        };
-        return res.status(result.code).send(result);
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: reset code can not be empty')()
+        sendResponse(res, errorResponse)
+        return res.end();
       }
       if (!data.newpass) {
-        const result: any = {
-          success: false,
-          code: 400,
-          message: 'Invalid Entry: newpass can not be empty'
-        };
-        return res.status(result.code).send(result);
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: new password can not be empty')()
+        sendResponse(res, errorResponse)
+        return res.end();
       }
       const account: any = await Auths.findOne({ where: { Email: data.email } });
       if (!account) {
-        const result: any = {
-          success: false,
-          message: 'Account not found!',
-          code: 400
-        };
-        return res.status(result.code).json(result);
+        const errorResponse: IResponse = createErrorResponse(400, 'Account not found!')()
+        sendResponse(res, errorResponse)
+        return res.end();
       }
 
       if (account.Token !== data.resetcode) {
-        const result: any = {
-          success: false,
-          message:
-            'Invalid Reset Code, Kindly check your email INBOX / SPAM for your account reset code!',
-          code: 400
-        };
-        return res.status(result.code).json(result);
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Reset Code, Kindly check your email INBOX / SPAM for your account reset code!')()
+        sendResponse(res, errorResponse)
+        return res.end();
+
       }
       const PasswordHash = await EncryptPassword(data.newpass);
       await account.update({ PasswordHash });
@@ -301,12 +277,9 @@ class AuthenticationController {
       });
       return res.end();
     } catch (error: any) {
-      const result: any = {
-        success: false,
-        message: 'System Error:' + error,
-        code: 400
-      };
-      return res.status(result.code).json(result);
+        const errorResponse: IResponse = createErrorResponse(400,'System Error:' + error)()
+        sendResponse(res, errorResponse)
+        return res.end();
     }
   }
 
@@ -316,52 +289,41 @@ class AuthenticationController {
 
       const data: any = req.body;
       if (!data.email) {
-        const result: any = {
-          success: false,
-          code: 400,
-          message: 'Invalid Entry: Email can not be empty'
-        };
-        return res.status(result.code).send(result);
+       const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: email can not be empty')()
+        sendResponse(res, errorResponse)
+        return res.end();
       }
       if (!data.oldpass) {
-        const result: any = {
-          success: false,
-          code: 400,
-          message: 'Invalid Entry: oldpass can not be empty'
-        };
-        return res.status(result.code).send(result);
+
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: old password can not be empty')()
+        sendResponse(res, errorResponse)
+        return res.end();
       }
       if (!data.newpass) {
-        const result: any = {
-          success: false,
-          code: 400,
-          message: 'Invalid Entry: newpass can not be empty'
-        };
-        return res.status(result.code).send(result);
+
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: new password can not be empty')()
+        sendResponse(res, errorResponse)
+        return res.end();
+
       }
       const account: any = await Auths.findOne({
         where: { Email: data.email, UserType: authUser.Account.UserType }
       });
       if (!account) {
-        const result: any = {
-          success: false,
-          message: 'Account not found!',
-          code: 400
-        };
-        return res.status(result.code).json(result);
+
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: email not found')()
+        sendResponse(res, errorResponse)
+        return res.end();
       }
       const validPass = await CheckPassword(data.oldpass, account.PasswordHash);
       if (!validPass) {
-        const result: any = {
-          success: false,
-          message: 'Incorret Password!',
-          code: 400
-        };
-        return res.status(result.code).json(result);
+        const errorResponse: IResponse = createErrorResponse(400,  'Incorret Password!')()
+        sendResponse(res, errorResponse)
+        return res.end();
       }
       const PasswordHash = await EncryptPassword(data.newpass);
       await account.update({ PasswordHash });
-      res.status(200).json({ success: true, message: 'Password Changed Successfully!' });
+      res.status(200).json({ success: true,code:200, message: 'Password Changed Successfully!' });
       await SendMail({
         subject: 'Changed Password Successfully',
         to_name: `${account.dataValues.firstName}`,
