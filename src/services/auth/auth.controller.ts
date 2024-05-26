@@ -153,10 +153,7 @@ class AuthenticationController {
       }
 
 
-      authdata = await authdata.update({ Verified: '1',"Status": "Pending" });
-
-      // return response as html text
-
+      authdata = await authdata.update({ Verified: '1',"Status": "Active" });
       await SendAccountVerified({FirstName:authdata.FirstName, Email: authdata.Email})
       const successResponse: IResponse = createSuccessResponse(authdata, 201, 'Account Successfully Verified')
       sendResponse(res, successResponse)

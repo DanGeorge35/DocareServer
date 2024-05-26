@@ -223,32 +223,6 @@ static async Upload (req: any, res: any, next: any): Promise<any> {
   }
 
 
-  static async verifyaccount(req: any, res: any): Promise<any> {
-    try {
-      const { email, token } = req.params;
-
-      const singleDoctors = await Auth.findOne({ where: { Email: email, Token: token } });
-
-      if (singleDoctors === null) {
-        return res
-          .status(400)
-          .json({ success: false, data: `No Doctor with the id ${req.params.id}` });
-      }
-
-      await singleDoctors.update({ Verified: '1' });
-      // return response as html text
-      res.setHeader('Content-Type', 'text/html');
-      res.write(`
-          <h3>Your account has been verified successfully</h3><br/>
-          Please click on this <a href="https://cadencepub.com/signin/">link to login.</a>
-        `);
-      return res.end();
-    } catch (error: any) {
-      const err = { code: 400, message: `SYSTEM ERROR : ${error.message}` };
-      console.error(error);
-      return res.status(400).send(err);
-    }
-  }
 
   static async getSingleDoctors(req: any, res: any): Promise<any> {
     try {

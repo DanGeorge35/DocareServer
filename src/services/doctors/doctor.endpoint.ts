@@ -19,11 +19,6 @@ const DoctorsEndpoint = [
     handler: [Authorization, DoctorsController.updateDoctors]
   },
   {
-    path: `${ENDPOINT_URL}/verify/:email/:token?`,
-    method: 'get',
-    handler: [DoctorsController.verifyaccount]
-  },
-  {
     path: `${ENDPOINT_URL}/`,
     method: 'get',
     handler: [DoctorsController.getallDoctors]

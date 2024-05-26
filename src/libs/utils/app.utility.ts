@@ -83,9 +83,9 @@ const SendMail = async (mail: { to_email: string; to_name: string; subject: stri
       <img src="https://posaccountant.com/docare-logoblue.jpg" alt="Cadence"  height="70">
     </div>
     <div style="background-color:white;font-size:18px; padding: 50px 35px; color:#55585b; ">
-       <b>Dear ${mail.to_name},<br><br><br>
+       Dear ${mail.to_name},<br><br>
       ${mail.message}
-      </b>
+
       <br>
       <div>
   </div>`;
@@ -207,9 +207,9 @@ DOCARE SUPPORT
       const mail = {
         to_email: data.Email,
         to_name: data.FirstName,
-        subject: 'DOCARE >> Email Successfully Verified!',
+        subject: 'Email Successfully Verified!',
         message: `
-Email is successfully verified. You can login now!<br><br>
+Your email is successfully verified. You can login now!<br><br>
 Best regards,<br>
 DOCARE SUPPORT
 <br>
