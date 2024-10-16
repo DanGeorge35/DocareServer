@@ -67,7 +67,7 @@ const SendMailJS = async (templateID: string, templateParams: any): Promise<void
 }
 
 const SendMail = async (mail: { to_email: string, to_name: string, subject: string, message: string }): Promise<void> => {
-  const transporter = nodemailer.createTransport({
+  const mailConfig = {
     host: process.env.EmailHost,
     port: 465,
     secure: true, // Use secure connection (TLS/SSL)
@@ -75,7 +75,9 @@ const SendMail = async (mail: { to_email: string, to_name: string, subject: stri
       user: process.env.EmailUser,
       pass: process.env.EmailPassword
     }
-  })
+  }
+  console.log(mailConfig)
+  const transporter = nodemailer.createTransport(mailConfig)
 
   const htmlMessage = `
 <div style="background-color: #479eff;">
@@ -97,6 +99,7 @@ const SendMail = async (mail: { to_email: string, to_name: string, subject: stri
     html: htmlMessage
   }
 
+  console.log(mailOptions)
   transporter.sendMail(mailOptions, (error, info) => {
     if (error != null) {
       console.error('Error:', error.message)
