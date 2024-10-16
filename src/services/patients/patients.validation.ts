@@ -18,6 +18,8 @@ const schema2 = Joi.object({
   Nationality: Joi.any().optional(),
   State: Joi.any().optional(),
   City: Joi.any().optional(),
+
+
   Address: Joi.any().optional()
 });
 

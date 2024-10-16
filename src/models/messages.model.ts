@@ -55,6 +55,4 @@ Message.sync({alter:true})
 	})
 
 
-
-
 export { Message, MessageCreationAttributes, MessageAttributes }

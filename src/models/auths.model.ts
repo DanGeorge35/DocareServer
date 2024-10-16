@@ -1,5 +1,5 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../config/db';
+import { DataTypes } from 'sequelize'
+import sequelize from '../config/db'
 
 const Auths = sequelize.define(
   'auths',
@@ -55,12 +55,12 @@ const Auths = sequelize.define(
     }
   },
   {}
-);
+)
 
 Auths.sync()
   .then(() => {})
   .catch((err: any) => {
-    console.error('Error creating Auths table:', err);
-  });
+    console.error('Error creating Auths table:', err)
+  })
 
-export default Auths;
+export default Auths

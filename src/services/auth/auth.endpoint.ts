@@ -1,8 +1,13 @@
-import AuthController from './auth.controller';
-import { Authorization } from '../../libs/utils/app.utility';
+import AuthController from './auth.controller'
+import { Authorization } from '../../libs/utils/app.utility'
 
-const ENDPOINT_URL = '/api/v1/auth';
+const ENDPOINT_URL = '/api/v1/auth'
 const AuthEndpoint = [
+  {
+    path: `${ENDPOINT_URL}/`,
+    method: 'post',
+    handler: [AuthController.createAccount]
+  },
   {
     path: `${ENDPOINT_URL}/verify/:email/:token`,
     method: 'get',
@@ -33,6 +38,6 @@ const AuthEndpoint = [
     method: 'post',
     handler: [AuthController.login]
   }
-];
+]
 
-export default AuthEndpoint;
+export default AuthEndpoint
