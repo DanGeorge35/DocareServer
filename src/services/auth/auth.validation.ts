@@ -5,7 +5,7 @@ const schema = Joi.object({
   FirstName: Joi.string().required().min(1),
   LastName: Joi.string().required().min(1),
   Email: Joi.string().required().min(1),
-  Password: Joi.string().required().min(1)
+  Password: Joi.string().optional().min(1)
 })
 // name : Joi.any().optional(); // for optional entry
 
