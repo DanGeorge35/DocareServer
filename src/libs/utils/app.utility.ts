@@ -12,7 +12,7 @@ dotenv.config()
 const Authorization = (req: any, res: any, next: any): void => {
   const authHeader = req.headers.authorization
   const token = authHeader?.split(' ')[1]
-  if (!token) return res.status(401).send('Not Authorized')
+  if (!(token)) return res.status(401).send('Not Authorized')
 
   const JWT_KEY: string = process.env.jwtkey as string
   jwt.verify(token, JWT_KEY, (err: any, user: any) => {
@@ -98,7 +98,7 @@ const SendMail = async (mail: { to_email: string, to_name: string, subject: stri
   }
 
   transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
+    if (error != null) {
       console.error('Error:', error.message)
     } else {
       console.log('Email sent:', info.response)
@@ -110,7 +110,7 @@ const adjustFieldsToValue = (fieldsObject: Fields): Record<string, string> => {
   const adjustedFields: Record<string, string> = {}
 
   for (const fieldName in fieldsObject) {
-    if (fieldsObject.hasOwnProperty(fieldName)) {
+    if (Object.prototype.hasOwnProperty.call(fieldsObject, fieldName)) {
       const fieldValue = fieldsObject[fieldName]?.[0] ?? '' // Using optional chaining and nullish coalescing
       adjustedFields[fieldName] = fieldValue
     }
@@ -136,7 +136,7 @@ const ProcessUploadImage = async (uploadedfile: any, filename: string): Promise<
   const image = sharp(oldPath)
   const metadata = await image.metadata()
 
-  if (metadata.width && metadata.height) {
+  if ((metadata.width != null) && (metadata.height != null)) {
     const newWidth = Math.round(metadata.width * 0.5)
     const newHeight = Math.round(metadata.height * 0.5)
 
@@ -164,10 +164,10 @@ const getUIDfromDate = (prefix = ''): string => {
   const random = (Math.floor(Math.random() * 9) + 1).toString()
   const uniqueNumber = `${year}${month}${day}${hour}${minute}${second}${random.substring(0, 2)}`
 
-  return prefix ? prefix + uniqueNumber : `IDN${uniqueNumber}`
+  return (prefix.length > 0) ? prefix + uniqueNumber : `IDN${uniqueNumber}`
 }
 
-function generateOTP () {
+function generateOTP (): number {
   const min = 100000
   const max = 999999
   // Generate a random value between min and max (inclusive)
@@ -175,7 +175,7 @@ function generateOTP () {
   return otp
 }
 
-const SendVerifyToken = async (data: any, token: number) => {
+const SendVerifyToken = async (data: any, token: number): Promise<void> => {
   // send mail
   const mail = {
     to_email: data.Email,
@@ -198,7 +198,7 @@ DOCARE SUPPORT
   await SendMail(mail)
 }
 
-const SendAccountVerified = async (data: any) => {
+const SendAccountVerified = async (data: any): Promise<void> => {
   // send mail
   const mail = {
     to_email: data.Email,
