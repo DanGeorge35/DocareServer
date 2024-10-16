@@ -35,7 +35,7 @@ class AuthenticationController {
 
       const accountExist = await Auths.findOne({ where: { Email: data.Email } })
       if (accountExist !== null) {
-        if (accountExist.dataValues.Verified === 0) {
+        if (accountExist.dataValues.Verified === '0') {
           const token = generateOTP()
           await SendVerifyToken(data, token)
           const successResponse: IResponse = createErrorResponse(205, 'Kindly check your mail for Verification Code')(token)
