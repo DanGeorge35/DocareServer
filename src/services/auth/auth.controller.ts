@@ -201,13 +201,13 @@ class AuthenticationController {
       let authdata: any = await Auths.findOne({ where: { Email: email } })
 
       if (authdata === null) {
-        const errorResponse: IResponse = createErrorResponse(404, 'Account Not Found')()
+        const errorResponse: IResponse = createErrorResponse(400, 'Account Not Found')()
         sendResponse(res, errorResponse)
         return res.end()
       }
 
       if (authdata.dataValues.Token !== token) {
-        const errorResponse: IResponse = createErrorResponse(404, 'Invalid Token')()
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Token')()
         sendResponse(res, errorResponse)
         return res.end()
       }
