@@ -21,7 +21,7 @@ const AuthEndpoint = [
   {
     path: `${ENDPOINT_URL}/createpassword`,
     method: 'post',
-    handler: [Authorization, AuthController.createpassword]
+    handler: [AuthController.createpassword]
   },
   {
     path: `${ENDPOINT_URL}/changepassword`,
