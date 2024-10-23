@@ -186,7 +186,7 @@ const SendPasswordResetToken = async (data: any, token: number): Promise<void> =
     message: `
 Your account password reset code is:
     <br><br><b style='font-size: 30px;font-weight: 700;padding: 15px 35px;display: inline-block;background-color: #d6ecff;border-radius: 10px;'>${token}</b>
-<br>
+<br>    <br>
 Best regards,<br>
 DOCARE SUPPORT
 <br>
