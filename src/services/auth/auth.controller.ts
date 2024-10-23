@@ -168,9 +168,9 @@ class AuthenticationController {
       } else if (account.UserType === 'patient') {
         user = await Patient.findOne({ where: { Email } })
       } else {
-        user = {}
+        user = null
       }
-      console.log(user)
+
       if (user !== null) {
         user.dataValues.Account = account
         token = GenerateToken(user)
