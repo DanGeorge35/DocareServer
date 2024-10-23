@@ -434,7 +434,7 @@ class AuthenticationController {
       const PasswordHash = await EncryptPassword(data.Password)
       const AuthResult = await account.update({ PasswordHash, Status: 'Active' })
 
-      const successResponse: IResponse = createSuccessResponse(AuthResult, 200, 'Password Created Successfully!')
+      const successResponse: IResponse = createSuccessResponse({ Account: AuthResult }, 200, 'Password Created Successfully!')
       sendResponse(res, successResponse)
 
       await SendMail({
