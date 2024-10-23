@@ -150,7 +150,7 @@ class AuthenticationController {
         return res.status(result.code).json(result)
       }
 
-      if (parseInt(account.dataValues.Verified) === 0) {
+      if (parseInt(account.Verified) === 0) {
         // const result: any = {
         //   success: false,
         //   message: 'Account Not Verified! Kindly check your email INBOX / SPAM for verification link',
@@ -167,8 +167,10 @@ class AuthenticationController {
         user = await Doctor.findOne({ where: { Email } })
       } else if (account.UserType === 'patient') {
         user = await Patient.findOne({ where: { Email } })
+      } else {
+        user = {}
       }
-
+      console.log(user)
       if (user !== null) {
         user.dataValues.Account = account
         token = GenerateToken(user)
