@@ -121,15 +121,15 @@ class AuthenticationController {
   static async login (req: any, res: any): Promise<any> {
     try {
       let token
-      const { email, password } = req.body
+      const { Email, Password } = req.body
 
-      if (!email || !password) {
+      if (!Email || !Password) {
         return res
           .status(400)
           .json({ success: false, message: 'Email and password is required', code: 400 })
       }
 
-      const account: any = await Auths.findOne({ where: { Email: email } })
+      const account: any = await Auths.findOne({ where: { Email } })
 
       if (!account) {
         const result: any = {
@@ -140,7 +140,7 @@ class AuthenticationController {
         return res.status(result.code).json(result)
       }
 
-      const validPass = await CheckPassword(password, account.PasswordHash)
+      const validPass = await CheckPassword(Password, account.PasswordHash)
       if (!validPass) {
         const result: any = {
           success: false,
@@ -162,28 +162,27 @@ class AuthenticationController {
       let user: any
 
       if (account.UserType === 'Admin') {
-        user = await Admin.findOne({ where: { Email: email } })
+        user = await Admin.findOne({ where: { Email } })
       } else if (account.UserType === 'doctor') {
-        user = await Doctor.findOne({ where: { Email: email } })
+        user = await Doctor.findOne({ where: { Email } })
       } else if (account.UserType === 'patient') {
-        user = await Patient.findOne({ where: { Email: email } })
+        user = await Patient.findOne({ where: { Email } })
       }
 
       if (user !== null) {
         user.dataValues.Account = account
         token = GenerateToken(user)
+        delete user.dataValues.Account.dataValues.PasswordHash
+        delete user.dataValues.Account.dataValues.RefreshToken
+        delete user.dataValues.Account.dataValues.Token
       } else {
-        const result: any = {
-          success: false,
-          message: 'User Not found!',
-          code: 400
-        }
-        return res.status(result.code).json(result)
+        user = { Account: account }
+        token = GenerateToken(user)
+        delete user.Account.PasswordHash
+        delete user.Account.RefreshToken
+        delete user.Account.Token
       }
 
-      delete user.dataValues.Account.dataValues.PasswordHash
-      delete user.dataValues.Account.dataValues.RefreshToken
-      delete user.dataValues.Account.dataValues.Token
       return res.status(200).json({ success: true, data: user, token, message: 'Successfully Login' })
     } catch (error: any) {
       const result: any = {
