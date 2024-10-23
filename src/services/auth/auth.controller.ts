@@ -10,6 +10,7 @@ import {
   CheckPassword,
   SendMail,
   SendVerifyToken,
+  SendPasswordResetToken,
   SendAccountVerified,
   generateOTP
 } from '../../libs/utils/app.utility'
@@ -260,33 +261,23 @@ class AuthenticationController {
   static async resetpassword (req: any, res: any): Promise<any> {
     try {
       const data: any = req.body
-      if (!data.email) {
+      if (!data.Email) {
         const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: Email can not be empty')()
         sendResponse(res, errorResponse)
         return res.end()
       }
 
-      const account: any = await Auths.findOne({ where: { Email: data.email } })
+      let account: any = await Auths.findOne({ where: { Email: data.Email } })
       if (!account) {
         const errorResponse: IResponse = createErrorResponse(400, 'Account not found!')()
         sendResponse(res, errorResponse)
         return res.end()
       }
-
-      const restToken = getUIDfromDate('RST')
-      await account.update({ Token: restToken })
-      res
-        .status(200)
-        .json({ success: true, code: 200, message: 'Your account reset code has been sent to your email!' })
-      await SendMail({
-        subject: 'Pasword Reset Code',
-        to_name: `${account.dataValues.firstName}`,
-        message: `Your account password reset code is:\n
-        ${restToken}
-
-         \n\nKind Regards,\nDocare Team`,
-        to_email: account.email
-      })
+      const token = generateOTP()
+      account = await account.update({ Token: token })
+      const successResponse: IResponse = createSuccessResponse(account, 200, 'Your account reset code has been sent to your email!')
+      sendResponse(res, successResponse)
+      await SendPasswordResetToken(data, token)
       return res.end()
     } catch (error: any) {
       const errorResponse: IResponse = createErrorResponse(400, 'SYSTEM ERROR :' + error)()

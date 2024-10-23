@@ -16,7 +16,7 @@ const Authorization = (req: any, res: any, next: any): void => {
 
   const JWT_KEY: string = process.env.jwtkey as string
   jwt.verify(token, JWT_KEY, (err: any, user: any) => {
-    if (err) return res.status(401).send('Invalid Token')
+    if (err !== null) return res.status(401).send('Invalid Token')
     req.user = user
     next()
   })
@@ -178,6 +178,23 @@ function generateOTP (): number {
   return otp
 }
 
+const SendPasswordResetToken = async (data: any, token: number): Promise<void> => {
+  const mail = {
+    to_email: data.Email,
+    to_name: data.FirstName,
+    subject: 'Pasword Reset Code',
+    message: `
+Your account password reset code is:\n
+         <br><br><b style='font-size: 30px;font-weight: 700;padding: 15px 35px;display: inline-block;background-color: #d6ecff;border-radius: 10px;'>${token}</b>
+<<br>
+DOCARE SUPPORT
+<br>
+`
+  }
+
+  await SendMail(mail)
+}
+
 const SendVerifyToken = async (data: any, token: number): Promise<void> => {
   // send mail
   const mail = {
@@ -220,6 +237,7 @@ DOCARE SUPPORT
 
 export {
   SendAccountVerified,
+  SendPasswordResetToken,
   SendVerifyToken,
   Authorization,
   GenerateToken,
