@@ -19,10 +19,16 @@ const AuthEndpoint = [
     handler: [AuthController.verifyaccountotp]
   },
   {
+    path: `${ENDPOINT_URL}/createpassword`,
+    method: 'post',
+    handler: [Authorization, AuthController.createpassword]
+  },
+  {
     path: `${ENDPOINT_URL}/changepassword`,
     method: 'post',
     handler: [Authorization, AuthController.changepassword]
   },
+
   {
     path: `${ENDPOINT_URL}/changepasswordreset`,
     method: 'post',

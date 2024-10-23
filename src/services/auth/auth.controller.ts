@@ -283,7 +283,7 @@ class AuthenticationController {
         message: `Your account password reset code is:\n
         ${restToken}
 
-         \n\nKind Regards,\nTurgl Team`,
+         \n\nKind Regards,\nDocare Team`,
         to_email: account.email
       })
       return res.end()
@@ -331,7 +331,7 @@ class AuthenticationController {
         subject: 'Changed Password Successfully',
         to_name: `${account.dataValues.firstName}`,
         message: `Your account password has been successfully updated.
-         \n\n Kind Regards,\nTurgl Team`,
+         \n\n Kind Regards,\nDocare Team`,
         to_email: account.email
       })
       return res.end()
@@ -383,8 +383,73 @@ class AuthenticationController {
         subject: 'Changed Password Successfully',
         to_name: `${account.dataValues.firstName}`,
         message: `Your account password has been successfully updated.
-         \n\n Kind Regards,\nTurgl Team`,
+         \n\n Kind Regards,\nDocare Team`,
         to_email: account.email
+      })
+      return res.end()
+    } catch (error: any) {
+      const result: any = {
+        success: false,
+        message: 'System Error:' + error,
+        code: 400
+      }
+      return res.status(result.code).json(result)
+    }
+  }
+
+  static async createpassword (req: any, res: any): Promise<any> {
+    try {
+      const data: any = req.body
+      if (!data.Email) {
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: email can not be empty')()
+        sendResponse(res, errorResponse)
+        return res.end()
+      }
+      if (!data.ConfirmPassword) {
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: Confirm assword  can not be empty')()
+        sendResponse(res, errorResponse)
+        return res.end()
+      }
+      if (!data.Password) {
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: New password can not be empty')()
+        sendResponse(res, errorResponse)
+        return res.end()
+      }
+
+      if (data.Password !== data.ConfirmPassword) {
+        const errorResponse: IResponse = createErrorResponse(400, 'Passwords do not match')()
+        sendResponse(res, errorResponse)
+        return res.end()
+      }
+
+      const account: any = await Auths.findOne({
+        where: { Email: data.Email }
+      })
+
+      if (!account) {
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: Email not found')()
+        sendResponse(res, errorResponse)
+        return res.end()
+      }
+
+      if (account.dataValues.Token !== data.Token) {
+        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Token')()
+        sendResponse(res, errorResponse)
+        return res.end()
+      }
+
+      const PasswordHash = await EncryptPassword(data.Password)
+      const AuthResult = await account.update({ PasswordHash, Status: 'Active' })
+
+      const successResponse: IResponse = createSuccessResponse(AuthResult, 200, 'Password Created Successfully!')
+      sendResponse(res, successResponse)
+
+      await SendMail({
+        subject: 'Created Password Successfully',
+        to_name: `${AuthResult.dataValues.FirstName}`,
+        message: `Your account password has been successfully created.
+         \n\n Kind Regards,\nDocare Team`,
+        to_email: AuthResult.Email
       })
       return res.end()
     } catch (error: any) {
