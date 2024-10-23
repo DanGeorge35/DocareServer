@@ -212,7 +212,7 @@ class AuthenticationController {
         return res.end()
       }
 
-      authdata = await authdata.update({ Verified: '1', Status: 'Active' })
+      authdata = await authdata.update({ Verified: '1', Status: 'Unauth' })
       await SendAccountVerified({ FirstName: authdata.FirstName, Email: authdata.Email })
       const successResponse: IResponse = createSuccessResponse(authdata, 201, 'Account Successfully Verified')
       sendResponse(res, successResponse)
