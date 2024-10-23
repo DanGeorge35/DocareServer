@@ -419,8 +419,8 @@ class AuthenticationController {
         where: { Email: data.Email }
       })
 
-      if (!account) {
-        const errorResponse: IResponse = createErrorResponse(400, 'Invalid Entry: Email not found')()
+      if (account === null) {
+        const errorResponse: IResponse = createErrorResponse(400, 'User Account not found')()
         sendResponse(res, errorResponse)
         return res.end()
       }
