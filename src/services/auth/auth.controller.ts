@@ -277,7 +277,7 @@ class AuthenticationController {
       account = await account.update({ Token: token })
       const successResponse: IResponse = createSuccessResponse(account, 200, 'Your account reset code has been sent to your email!')
       sendResponse(res, successResponse)
-      await SendPasswordResetToken(data, token)
+      await SendPasswordResetToken(account, token)
       return res.end()
     } catch (error: any) {
       const errorResponse: IResponse = createErrorResponse(400, 'SYSTEM ERROR :' + error)()

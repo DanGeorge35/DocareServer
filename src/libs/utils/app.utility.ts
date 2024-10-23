@@ -184,9 +184,10 @@ const SendPasswordResetToken = async (data: any, token: number): Promise<void> =
     to_name: data.FirstName,
     subject: 'Pasword Reset Code',
     message: `
-Your account password reset code is:\n
-         <br><br><b style='font-size: 30px;font-weight: 700;padding: 15px 35px;display: inline-block;background-color: #d6ecff;border-radius: 10px;'>${token}</b>
-<<br>
+Your account password reset code is:
+    <br><br><b style='font-size: 30px;font-weight: 700;padding: 15px 35px;display: inline-block;background-color: #d6ecff;border-radius: 10px;'>${token}</b>
+<br>
+Best regards,<br>
 DOCARE SUPPORT
 <br>
 `
